@@ -63,7 +63,7 @@ Onboarding, Hoje, Semana, Treino, Detalhe do exercício, Ao vivo, Resumo pós-tr
 | # | Fase | Entrega | Status |
 |---|---|---|---|
 | 0 | Setup | Repo, Vite + PWA, tokens visuais, navegação, banco local, deploy | Feito |
-| 1 | Curadoria dos dados | ~250 exercícios traduzidos, ligados ao checklist de equipamentos, com tags de lesão | |
+| 1 | Curadoria dos dados | 293 exercícios traduzidos, ligados ao checklist de equipamentos, com tags de lesão (`data/curadoria.txt`, `npm run build:exercises`) | Feito |
 | 2 | Motor | Regras 1–9 com testes | |
 | 3 | Telas base | Onboarding, ambientes, perfil, hoje, semana, treino, detalhe | |
 | 4 | Execução | Ao vivo, registro, resumo, progressão, gráficos | |

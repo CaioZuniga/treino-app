@@ -8,6 +8,36 @@ export type Split = 'fullbody' | 'abc' | 'upperlower' | 'ppl' | 'abcd'
 /** Tags de restrição usadas para filtrar exercícios contraindicados. */
 export type Injury = 'joelho' | 'lombar' | 'ombro' | 'punho' | 'cotovelo' | 'quadril' | 'tornozelo' | 'cervical'
 
+export type Joint = 'quadril' | 'tornozelo' | 'joelho' | 'ombro' | 'toracica' | 'lombar' | 'punho' | 'cotovelo' | 'cervical'
+
+export type Muscle =
+  | 'abdomen' | 'adutores' | 'abdutores' | 'antebraco' | 'biceps' | 'dorsal' | 'gluteos' | 'lombar'
+  | 'meio_costas' | 'ombros' | 'panturrilha' | 'peito' | 'pescoco' | 'posterior' | 'quadriceps' | 'trapezio' | 'triceps'
+
+/** Vaga do motor: o papel do exercício dentro de uma sessão (ver data/curadoria.txt). */
+export type Pattern =
+  | 'empurrar_h' | 'empurrar_inc' | 'empurrar_v' | 'puxar_v' | 'puxar_h' | 'peito_iso'
+  | 'ombro_lateral' | 'ombro_frontal' | 'ombro_posterior' | 'trapezio' | 'biceps' | 'triceps' | 'antebraco'
+  | 'agachar' | 'unilateral' | 'quadriceps_iso' | 'dobradica' | 'posterior_iso' | 'gluteo' | 'abdutor' | 'adutor'
+  | 'panturrilha' | 'lombar' | 'core_estab' | 'core_flexao' | 'core_rot' | 'condicionamento' | 'cardio' | 'mobilidade'
+
+export interface Exercise {
+  id: string
+  name: string
+  pattern: Pattern
+  /** Alternativas: basta o ambiente ter todos os itens de UMA das listas. Lista vazia = sem equipamento. */
+  equipment: string[][]
+  contraindications: Injury[]
+  joints: Joint[]
+  primaryMuscles: Muscle[]
+  secondaryMuscles: Muscle[]
+  level: Level
+  mechanic: 'composto' | 'isolado' | null
+  /** Caminhos relativos no free-exercise-db (vazio nos exercícios custom_). */
+  images: string[]
+  instructions: string[]
+}
+
 export interface Profile {
   id: 'me'
   name: string

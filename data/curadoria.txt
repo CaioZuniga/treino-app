@@ -1,0 +1,325 @@
+# Curadoria de exercícios do treino-app (Fase 1).
+# Fonte: free-exercise-db (domínio público), commit fixado em scripts/build-exercises.mjs.
+#
+# Colunas separadas por "|":
+#   id | nome em português | padrão (vaga do motor) | equipamentos | lesões que contraindicam | articulações (só mobilidade)
+#
+# Equipamentos: "+" = todos necessários; "/" = alternativas; "-" = sem equipamento.
+#   Ex.: "barra+anilhas+rack" ou "kettlebell/halteres" ou "-".
+# Ids que começam com "custom_" não existem no free-exercise-db: têm instruções próprias e não têm fotos.
+#
+# Padrões: empurrar_h, empurrar_inc, empurrar_v, puxar_v, puxar_h, peito_iso, ombro_lateral, ombro_frontal,
+#   ombro_posterior, trapezio, biceps, triceps, antebraco, agachar, unilateral, quadriceps_iso, dobradica,
+#   posterior_iso, gluteo, abdutor, adutor, panturrilha, lombar, core_estab, core_flexao, core_rot,
+#   condicionamento, cardio, mobilidade
+
+## Peito
+Barbell_Bench_Press_-_Medium_Grip|Supino reto com barra|empurrar_h|barra+anilhas+banco|ombro|
+Dumbbell_Bench_Press|Supino reto com halteres|empurrar_h|halteres+banco||
+Dumbbell_Bench_Press_with_Neutral_Grip|Supino com halteres pegada neutra|empurrar_h|halteres+banco||
+Decline_Barbell_Bench_Press|Supino declinado com barra|empurrar_h|barra+anilhas+banco_inclinavel||
+Decline_Dumbbell_Bench_Press|Supino declinado com halteres|empurrar_h|halteres+banco_inclinavel||
+Smith_Machine_Bench_Press|Supino reto no Smith|empurrar_h|smith+banco||
+Machine_Bench_Press|Supino máquina|empurrar_h|supino_maquina||
+Cable_Chest_Press|Supino na polia|empurrar_h|polia||
+Bench_Press_-_With_Bands|Supino com elástico|empurrar_h|elastico+banco||
+Dumbbell_Floor_Press|Supino no chão com halteres|empurrar_h|halteres||
+Alternating_Floor_Press|Supino no chão alternado com kettlebell|empurrar_h|kettlebell||
+Pushups|Flexão de braço|empurrar_h|-|punho|
+Incline_Push-Up|Flexão inclinada (mãos no banco)|empurrar_h|banco/step|punho|
+Push-Up_Wide|Flexão com mãos afastadas|empurrar_h|-|punho,ombro|
+Suspended_Push-Up|Flexão no TRX|empurrar_h|trx|punho,ombro|
+Dips_-_Chest_Version|Mergulho nas paralelas (peito)|empurrar_h|paralelas|ombro,cotovelo|
+Barbell_Incline_Bench_Press_-_Medium_Grip|Supino inclinado com barra|empurrar_inc|barra+anilhas+banco_inclinavel|ombro|
+Incline_Dumbbell_Press|Supino inclinado com halteres|empurrar_inc|halteres+banco_inclinavel||
+Hammer_Grip_Incline_DB_Bench_Press|Supino inclinado com halteres pegada neutra|empurrar_inc|halteres+banco_inclinavel||
+Smith_Machine_Incline_Bench_Press|Supino inclinado no Smith|empurrar_inc|smith+banco_inclinavel||
+Leverage_Incline_Chest_Press|Supino inclinado na máquina|empurrar_inc|supino_maquina||
+Incline_Cable_Chest_Press|Supino inclinado na polia|empurrar_inc|polia+banco_inclinavel||
+Push-Ups_With_Feet_Elevated|Flexão com pés elevados|empurrar_inc|banco/step|punho,ombro|
+Dumbbell_Flyes|Crucifixo reto com halteres|peito_iso|halteres+banco|ombro|
+Incline_Dumbbell_Flyes|Crucifixo inclinado com halteres|peito_iso|halteres+banco_inclinavel|ombro|
+Butterfly|Voador (peck deck)|peito_iso|peck_deck||
+Cable_Crossover|Crossover na polia alta|peito_iso|polia||
+Low_Cable_Crossover|Crossover na polia baixa|peito_iso|polia||
+Flat_Bench_Cable_Flyes|Crucifixo na polia deitado|peito_iso|polia+banco||
+Incline_Cable_Flye|Crucifixo inclinado na polia|peito_iso|polia+banco_inclinavel||
+Cross_Over_-_With_Bands|Crucifixo em pé com elástico|peito_iso|elastico||
+Straight-Arm_Dumbbell_Pullover|Pullover com halter|peito_iso|halteres+banco|ombro|
+Svend_Press|Svend press com anilha|peito_iso|anilhas||
+
+## Costas
+Pullups|Barra fixa pegada pronada|puxar_v|barra_fixa|ombro|
+Chin-Up|Barra fixa pegada supinada|puxar_v|barra_fixa|cotovelo|
+Band_Assisted_Pull-Up|Barra fixa assistida com elástico|puxar_v|barra_fixa+elastico||
+Wide-Grip_Lat_Pulldown|Puxada frontal aberta|puxar_v|puxador||
+Close-Grip_Front_Lat_Pulldown|Puxada frontal fechada|puxar_v|puxador||
+Underhand_Cable_Pulldowns|Puxada com pegada supinada|puxar_v|puxador||
+V-Bar_Pulldown|Puxada com triângulo|puxar_v|puxador||
+One_Arm_Lat_Pulldown|Puxada unilateral|puxar_v|puxador/polia||
+Straight-Arm_Pulldown|Pulldown com braços estendidos|puxar_v|polia||
+Rope_Straight-Arm_Pulldown|Pulldown com corda|puxar_v|polia||
+Kneeling_High_Pulley_Row|Remada na polia alta ajoelhado|puxar_v|polia||
+custom_band_pulldown|Puxada com elástico|puxar_v|elastico||
+Bent_Over_Barbell_Row|Remada curvada com barra|puxar_h|barra+anilhas|lombar|
+Reverse_Grip_Bent-Over_Rows|Remada curvada supinada|puxar_h|barra+anilhas|lombar|
+Bent_Over_Two-Dumbbell_Row|Remada curvada com halteres|puxar_h|halteres|lombar|
+One-Arm_Dumbbell_Row|Remada unilateral com halter (serrote)|puxar_h|halteres+banco||
+Dumbbell_Incline_Row|Remada apoiada no banco inclinado|puxar_h|halteres+banco_inclinavel||
+One-Arm_Kettlebell_Row|Remada unilateral com kettlebell|puxar_h|kettlebell||
+T-Bar_Row_with_Handle|Remada cavalinho (T-bar)|puxar_h|barra+anilhas|lombar|
+Smith_Machine_Bent_Over_Row|Remada curvada no Smith|puxar_h|smith|lombar|
+Seated_Cable_Rows|Remada sentada na polia|puxar_h|polia/remada_maquina||
+Seated_One-arm_Cable_Pulley_Rows|Remada unilateral sentada na polia|puxar_h|polia||
+Leverage_Iso_Row|Remada máquina|puxar_h|remada_maquina||
+Leverage_High_Row|Puxada alta na máquina (high row)|puxar_v|remada_maquina||
+Inverted_Row|Remada invertida|puxar_h|barra+rack/smith||
+Suspended_Row|Remada no TRX|puxar_h|trx||
+custom_band_row|Remada com elástico|puxar_h|elastico||
+custom_table_row|Remada invertida na mesa|puxar_h|-||
+Hyperextensions_Back_Extensions|Hiperextensão lombar (banco romano)|lombar|hiperextensao||
+Weighted_Ball_Hyperextension|Hiperextensão na bola suíça|lombar|bola_suica||
+Superman|Super-homem|lombar|-||
+
+## Ombros e trapézio
+Barbell_Shoulder_Press|Desenvolvimento com barra sentado|empurrar_v|barra+anilhas+banco+rack|ombro|
+Standing_Military_Press|Desenvolvimento militar em pé|empurrar_v|barra+anilhas+rack|ombro,lombar|
+Dumbbell_Shoulder_Press|Desenvolvimento com halteres sentado|empurrar_v|halteres+banco|ombro|
+Standing_Dumbbell_Press|Desenvolvimento com halteres em pé|empurrar_v|halteres|ombro|
+Arnold_Dumbbell_Press|Desenvolvimento Arnold|empurrar_v|halteres+banco|ombro|
+Machine_Shoulder_Military_Press|Desenvolvimento máquina|empurrar_v|desenvolvimento_maquina||
+Smith_Machine_Overhead_Shoulder_Press|Desenvolvimento no Smith|empurrar_v|smith+banco|ombro|
+Cable_Shoulder_Press|Desenvolvimento na polia|empurrar_v|polia||
+Shoulder_Press_-_With_Bands|Desenvolvimento com elástico|empurrar_v|elastico||
+Two-Arm_Kettlebell_Military_Press|Desenvolvimento com kettlebells|empurrar_v|kettlebell|ombro|
+custom_pike_pushup|Flexão pike (ombros)|empurrar_v|-|ombro,punho|
+Side_Lateral_Raise|Elevação lateral com halteres|ombro_lateral|halteres||
+Seated_Side_Lateral_Raise|Elevação lateral sentado|ombro_lateral|halteres+banco||
+One-Arm_Side_Laterals|Elevação lateral unilateral|ombro_lateral|halteres||
+Standing_Low-Pulley_Deltoid_Raise|Elevação lateral unilateral na polia|ombro_lateral|polia||
+Cable_Seated_Lateral_Raise|Crucifixo inverso sentado na polia|ombro_posterior|polia||
+Lateral_Raise_-_With_Bands|Elevação lateral com elástico|ombro_lateral|elastico||
+Front_Dumbbell_Raise|Elevação frontal com halteres|ombro_frontal|halteres||
+Front_Plate_Raise|Elevação frontal com anilha|ombro_frontal|anilhas||
+Front_Cable_Raise|Elevação frontal na polia|ombro_frontal|polia||
+Reverse_Flyes|Crucifixo inverso com halteres|ombro_posterior|halteres||
+Seated_Bent-Over_Rear_Delt_Raise|Crucifixo inverso sentado|ombro_posterior|halteres+banco||
+Reverse_Machine_Flyes|Crucifixo inverso na máquina|ombro_posterior|peck_deck||
+Cable_Rear_Delt_Fly|Crucifixo inverso na polia|ombro_posterior|polia||
+Face_Pull|Face pull|ombro_posterior|polia||
+Band_Pull_Apart|Abertura com elástico (pull apart)|ombro_posterior|elastico||
+External_Rotation_with_Band|Rotação externa de ombro com elástico|ombro_posterior|elastico||
+External_Rotation_with_Cable|Rotação externa de ombro na polia|ombro_posterior|polia||
+Barbell_Shrug|Encolhimento com barra|trapezio|barra+anilhas||
+Dumbbell_Shrug|Encolhimento com halteres|trapezio|halteres||
+Cable_Shrugs|Encolhimento na polia|trapezio|polia||
+Upright_Barbell_Row|Remada alta com barra|trapezio|barra+anilhas|ombro|
+Standing_Dumbbell_Upright_Row|Remada alta com halteres|trapezio|halteres|ombro|
+
+## Bíceps, tríceps e antebraço
+Barbell_Curl|Rosca direta com barra|biceps|barra+anilhas|punho|
+EZ-Bar_Curl|Rosca direta com barra W|biceps|barra_w+anilhas||
+Dumbbell_Bicep_Curl|Rosca direta com halteres|biceps|halteres||
+Dumbbell_Alternate_Bicep_Curl|Rosca alternada|biceps|halteres||
+Hammer_Curls|Rosca martelo|biceps|halteres||
+Incline_Dumbbell_Curl|Rosca inclinada|biceps|halteres+banco_inclinavel|ombro|
+Concentration_Curls|Rosca concentrada|biceps|halteres+banco||
+Preacher_Curl|Rosca Scott com barra|biceps|barra_w+anilhas+banco_scott|cotovelo|
+One_Arm_Dumbbell_Preacher_Curl|Rosca Scott unilateral com halter|biceps|halteres+banco_scott|cotovelo|
+Spider_Curl|Rosca spider|biceps|barra_w+anilhas+banco_inclinavel||
+Standing_Biceps_Cable_Curl|Rosca na polia|biceps|polia||
+Cable_Hammer_Curls_-_Rope_Attachment|Rosca martelo na polia com corda|biceps|polia||
+High_Cable_Curls|Rosca no crossover (polia alta)|biceps|polia||
+Zottman_Curl|Rosca Zottman|biceps|halteres||
+Reverse_Barbell_Curl|Rosca inversa com barra|biceps|barra+anilhas/barra_w+anilhas|punho|
+custom_band_curl|Rosca com elástico|biceps|elastico||
+Triceps_Pushdown|Tríceps na polia com barra|triceps|polia||
+Triceps_Pushdown_-_Rope_Attachment|Tríceps na polia com corda|triceps|polia||
+Triceps_Pushdown_-_V-Bar_Attachment|Tríceps na polia com triângulo|triceps|polia||
+Reverse_Grip_Triceps_Pushdown|Tríceps na polia pegada invertida|triceps|polia||
+Triceps_Overhead_Extension_with_Rope|Tríceps francês na polia com corda|triceps|polia|ombro|
+Cable_One_Arm_Tricep_Extension|Tríceps unilateral na polia|triceps|polia||
+EZ-Bar_Skullcrusher|Tríceps testa com barra W|triceps|barra_w+anilhas+banco|cotovelo|
+Lying_Dumbbell_Tricep_Extension|Tríceps testa com halteres|triceps|halteres+banco|cotovelo|
+Standing_Dumbbell_Triceps_Extension|Tríceps francês em pé com halter|triceps|halteres|ombro,cotovelo|
+Seated_Triceps_Press|Tríceps francês sentado com halter|triceps|halteres+banco|ombro,cotovelo|
+Tricep_Dumbbell_Kickback|Tríceps coice com halter|triceps|halteres||
+Band_Skull_Crusher|Tríceps testa com elástico|triceps|elastico||
+Close-Grip_Barbell_Bench_Press|Supino fechado|triceps|barra+anilhas+banco|punho|
+Push-Ups_-_Close_Triceps_Position|Flexão fechada (diamante)|triceps|-|punho|
+Bench_Dips|Mergulho no banco|triceps|banco|ombro|
+Dips_-_Triceps_Version|Mergulho nas paralelas (tríceps)|triceps|paralelas|ombro,cotovelo|
+Palms-Up_Dumbbell_Wrist_Curl_Over_A_Bench|Rosca de punho com halteres|antebraco|halteres+banco|punho|
+Palms-Down_Wrist_Curl_Over_A_Bench|Rosca de punho inversa com barra|antebraco|barra+anilhas+banco|punho|
+Plate_Pinch|Pinça de anilhas|antebraco|anilhas||
+
+## Pernas
+Barbell_Squat|Agachamento livre com barra|agachar|barra+anilhas+rack|joelho,lombar|
+Barbell_Full_Squat|Agachamento profundo com barra|agachar|barra+anilhas+rack|joelho,lombar,quadril|
+Front_Squat_Clean_Grip|Agachamento frontal com barra|agachar|barra+anilhas+rack|joelho,punho|
+Box_Squat|Agachamento no banco com barra (box squat)|agachar|barra+anilhas+rack+banco|lombar|
+Smith_Machine_Squat|Agachamento no Smith|agachar|smith|joelho|
+Hack_Squat|Agachamento no hack|agachar|hack|joelho|
+Leg_Press|Leg press|agachar|leg_press||
+Narrow_Stance_Leg_Press|Leg press com pés juntos|agachar|leg_press|joelho|
+Goblet_Squat|Agachamento goblet|agachar|kettlebell/halteres||
+Dumbbell_Squat|Agachamento com halteres|agachar|halteres||
+Dumbbell_Squat_To_A_Bench|Agachamento até o banco com halteres|agachar|halteres+banco||
+Plie_Dumbbell_Squat|Agachamento sumô com halter|agachar|halteres/kettlebell|quadril|
+Front_Squats_With_Two_Kettlebells|Agachamento frontal com kettlebells|agachar|kettlebell||
+Squats_-_With_Bands|Agachamento com elástico|agachar|elastico||
+Bodyweight_Squat|Agachamento livre (peso do corpo)|agachar|-||
+Dumbbell_Lunges|Afundo com halteres|unilateral|halteres|joelho|
+Barbell_Lunge|Afundo com barra|unilateral|barra+anilhas+rack|joelho|
+Dumbbell_Rear_Lunge|Afundo reverso com halteres|unilateral|halteres||
+Bodyweight_Walking_Lunge|Avanço caminhando|unilateral|-|joelho|
+Barbell_Walking_Lunge|Avanço caminhando com barra|unilateral|barra+anilhas+rack|joelho|
+Split_Squat_with_Dumbbells|Agachamento búlgaro com halteres|unilateral|halteres+banco|joelho|
+Smith_Single-Leg_Split_Squat|Agachamento búlgaro no Smith|unilateral|smith+banco|joelho|
+Suspended_Split_Squat|Agachamento búlgaro no TRX|unilateral|trx|joelho|
+Dumbbell_Step_Ups|Subida no banco com halteres|unilateral|halteres+banco/halteres+step||
+Step-up_with_Knee_Raise|Subida no step com elevação de joelho|unilateral|step/banco||
+Leg_Extensions|Cadeira extensora|quadriceps_iso|extensora|joelho|
+Single-Leg_Leg_Extension|Cadeira extensora unilateral|quadriceps_iso|extensora|joelho|
+Barbell_Deadlift|Levantamento terra|dobradica|barra+anilhas|lombar|
+Romanian_Deadlift|Levantamento terra romeno|dobradica|barra+anilhas|lombar|
+Stiff-Legged_Barbell_Deadlift|Stiff com barra|dobradica|barra+anilhas|lombar|
+Stiff-Legged_Dumbbell_Deadlift|Stiff com halteres|dobradica|halteres|lombar|
+Smith_Machine_Stiff-Legged_Deadlift|Stiff no Smith|dobradica|smith|lombar|
+Sumo_Deadlift|Levantamento terra sumô|dobradica|barra+anilhas|lombar,quadril|
+Rack_Pulls|Terra parcial no rack|dobradica|barra+anilhas+rack|lombar|
+Good_Morning|Bom-dia com barra|dobradica|barra+anilhas+rack|lombar|
+Band_Good_Morning|Bom-dia com elástico|dobradica|elastico||
+custom_sl_rdl_bw|Terra unilateral com peso do corpo|dobradica|-||
+Kettlebell_One-Legged_Deadlift|Terra unilateral com kettlebell|dobradica|kettlebell/halteres||
+One-Arm_Kettlebell_Swings|Swing com kettlebell|dobradica|kettlebell|lombar|
+Cable_Deadlifts|Terra na polia|dobradica|polia|lombar|
+Pull_Through|Pull through na polia|dobradica|polia||
+Lying_Leg_Curls|Mesa flexora|posterior_iso|flexora||
+Seated_Leg_Curl|Cadeira flexora|posterior_iso|flexora||
+Standing_Leg_Curl|Flexora em pé|posterior_iso|flexora||
+Ball_Leg_Curl|Flexão de joelhos na bola suíça|posterior_iso|bola_suica||
+Seated_Band_Hamstring_Curl|Flexora sentado com elástico|posterior_iso|elastico||
+Natural_Glute_Ham_Raise|Flexão nórdica|posterior_iso|puxador/banco_scott|joelho|
+Barbell_Hip_Thrust|Elevação pélvica com barra|gluteo|barra+anilhas+banco||
+Barbell_Glute_Bridge|Ponte de glúteo com barra|gluteo|barra+anilhas||
+Butt_Lift_Bridge|Ponte de glúteo|gluteo|-||
+Single_Leg_Glute_Bridge|Ponte de glúteo unilateral|gluteo|-||
+Physioball_Hip_Bridge|Ponte de glúteo na bola suíça|gluteo|bola_suica||
+Hip_Lift_with_Band|Ponte de glúteo com elástico|gluteo|elastico||
+Glute_Kickback|Coice de glúteo em quatro apoios|gluteo|-||
+One-Legged_Cable_Kickback|Coice de glúteo na polia|gluteo|polia||
+Hip_Extension_with_Bands|Extensão de quadril com elástico|gluteo|elastico||
+Thigh_Abductor|Cadeira abdutora|abdutor|abdutora||
+Monster_Walk|Monster walk com elástico|abdutor|elastico||
+Side_Leg_Raises|Elevação lateral de perna|abdutor|-||
+Thigh_Adductor|Cadeira adutora|adutor|abdutora||
+Band_Hip_Adductions|Adução de quadril com elástico|adutor|elastico||
+Cable_Hip_Adduction|Adução de quadril na polia|adutor|polia||
+Standing_Calf_Raises|Panturrilha em pé na máquina|panturrilha|panturrilha||
+Seated_Calf_Raise|Panturrilha sentado na máquina|panturrilha|panturrilha||
+Calf_Press_On_The_Leg_Press_Machine|Panturrilha no leg press|panturrilha|leg_press||
+Smith_Machine_Calf_Raise|Panturrilha em pé no Smith|panturrilha|smith||
+Standing_Dumbbell_Calf_Raise|Panturrilha em pé com halteres|panturrilha|halteres||
+Dumbbell_Seated_One-Leg_Calf_Raise|Panturrilha sentado unilateral com halter|panturrilha|halteres+banco||
+Calf_Raises_-_With_Bands|Panturrilha com elástico|panturrilha|elastico||
+custom_calf_raise|Panturrilha em pé (peso do corpo)|panturrilha|-||
+
+## Core
+Plank|Prancha|core_estab|-||
+Side_Bridge|Prancha lateral|core_estab|-||
+Dead_Bug|Dead bug|core_estab|-||
+Pallof_Press|Pallof press|core_estab|polia/elastico||
+Barbell_Ab_Rollout|Rollout com barra|core_estab|barra+anilhas|lombar,ombro|
+Suspended_Fallout|Rollout no TRX|core_estab|trx|lombar,ombro|
+Mountain_Climbers|Escalador (mountain climber)|core_estab|-|punho|
+Crunches|Abdominal crunch|core_flexao|-|cervical|
+Reverse_Crunch|Abdominal reverso|core_flexao|-||
+Tuck_Crunch|Abdominal grupado|core_flexao|-||
+Air_Bike|Abdominal bicicleta|core_flexao|-|cervical|
+Sit-Up|Abdominal completo (sit-up)|core_flexao|-|lombar,cervical|
+Decline_Crunch|Abdominal no banco declinado|core_flexao|banco_inclinavel|cervical|
+Cable_Crunch|Abdominal ajoelhado na polia|core_flexao|polia||
+Exercise_Ball_Crunch|Abdominal na bola suíça|core_flexao|bola_suica||
+Exercise_Ball_Pull-In|Joelhos ao peito com canelas na bola suíça|core_flexao|bola_suica|punho|
+Flat_Bench_Lying_Leg_Raise|Elevação de pernas no banco|core_flexao|banco|lombar|
+Knee_Hip_Raise_On_Parallel_Bars|Elevação de pernas no apoio de antebraços|core_flexao|paralelas|ombro|
+Russian_Twist|Giro russo|core_rot|-|lombar|
+Oblique_Crunches_-_On_The_Floor|Abdominal oblíquo no chão|core_rot|-|cervical|
+Cross-Body_Crunch|Abdominal cruzado|core_rot|-|cervical|
+Standing_Cable_Wood_Chop|Lenhador na polia|core_rot|polia||
+Pallof_Press_With_Rotation|Pallof press com rotação|core_rot|polia||
+Dumbbell_Side_Bend|Flexão lateral de tronco com halter|core_rot|halteres||
+
+## Condicionamento (circuitos e HIIT sem aparelho)
+custom_jumping_jack|Polichinelo|condicionamento|-|tornozelo|
+custom_burpee|Burpee|condicionamento|-|punho,joelho,lombar|
+Star_Jump|Salto estrela|condicionamento|-|joelho,tornozelo|
+Freehand_Jump_Squat|Agachamento com salto|condicionamento|-|joelho,tornozelo|
+Split_Jump|Afundo com salto|condicionamento|-|joelho,tornozelo|
+Fast_Skipping|Skipping|condicionamento|-|tornozelo|
+custom_high_knees|Corrida estacionária com joelho alto|condicionamento|-|tornozelo|
+custom_shadow_boxing|Boxe no ar (shadow boxing)|condicionamento|-||
+
+## Aeróbico em aparelho
+Bicycling_Stationary|Bike ergométrica|cardio|bike||
+Recumbent_Bike|Bike horizontal|cardio|bike||
+Elliptical_Trainer|Elíptico|cardio|eliptico||
+Walking_Treadmill|Caminhada na esteira|cardio|esteira||
+Jogging_Treadmill|Trote na esteira|cardio|esteira|joelho,tornozelo|
+Running_Treadmill|Corrida na esteira|cardio|esteira|joelho,tornozelo|
+Rowing_Stationary|Remo ergométrico|cardio|remo|lombar|
+Stairmaster|Escada ergométrica|cardio|escada|joelho|
+Rope_Jumping|Pular corda|cardio|corda|joelho,tornozelo|
+Trail_Running_Walking|Caminhada ou corrida ao ar livre|cardio|-|joelho,tornozelo|
+
+## Mobilidade (aquecimento) — última coluna: articulações trabalhadas
+custom_90_90|Rotação de quadril 90/90|mobilidade|-||quadril
+custom_ankle_wall|Mobilidade de tornozelo na parede|mobilidade|-||tornozelo
+custom_open_book|Rotação torácica deitado (livro aberto)|mobilidade|-||toracica,ombro
+custom_wall_slide|Deslizamento de braços na parede|mobilidade|-||ombro,toracica
+custom_band_dislocate|Passagem de ombro com elástico|mobilidade|elastico||ombro
+custom_deep_squat_hold|Agachamento profundo sustentado|mobilidade|-|joelho|quadril,tornozelo
+custom_glute_bridge_march|Ponte de glúteo com marcha|mobilidade|-||quadril,lombar
+custom_scap_pushup|Flexão escapular|mobilidade|-|punho|ombro
+Worlds_Greatest_Stretch|Alongamento "melhor do mundo"|mobilidade|-||quadril,toracica
+Inchworm|Caminhada de mãos (inchworm)|mobilidade|-|punho|quadril,ombro
+Cat_Stretch|Alongamento do gato (arredondar a coluna)|mobilidade|-||toracica,lombar
+Childs_Pose|Postura da criança|mobilidade|-||lombar,ombro
+Kneeling_Hip_Flexor|Alongamento do flexor do quadril ajoelhado|mobilidade|-||quadril
+Standing_Hip_Circles|Círculos de quadril em pé|mobilidade|-||quadril
+Hip_Circles_prone|Círculos de quadril em quatro apoios|mobilidade|-||quadril
+Groiners|Groiner (pés até as mãos)|mobilidade|-|punho|quadril
+Front_Leg_Raises|Balanço de perna para frente|mobilidade|-||quadril
+Ankle_On_The_Knee|Alongamento de glúteo (tornozelo sobre o joelho)|mobilidade|-||quadril
+Side_Lying_Groin_Stretch|Alongamento de adutores deitado de lado|mobilidade|-||quadril
+90_90_Hamstring|Alongamento de posterior 90/90|mobilidade|-||quadril,joelho
+Hamstring_Stretch|Alongamento de posterior deitado|mobilidade|-||quadril
+Ankle_Circles|Círculos de tornozelo|mobilidade|-||tornozelo
+Calf_Stretch_Hands_Against_Wall|Alongamento de panturrilha na parede|mobilidade|-||tornozelo
+Knee_Circles|Círculos de joelho|mobilidade|-||joelho
+On_Your_Side_Quad_Stretch|Alongamento de quadríceps deitado de lado|mobilidade|-||joelho,quadril
+Arm_Circles|Círculos de braço|mobilidade|-||ombro
+Shoulder_Circles|Círculos de ombro|mobilidade|-||ombro
+Elbows_Back|Cotovelos para trás|mobilidade|-||ombro,toracica
+Dynamic_Chest_Stretch|Alongamento dinâmico de peito|mobilidade|-||ombro,toracica
+Chest_And_Front_Of_Shoulder_Stretch|Alongamento de peito e frente do ombro|mobilidade|-||ombro
+Overhead_Stretch|Alongamento com braços acima da cabeça|mobilidade|-||ombro
+Triceps_Stretch|Alongamento de tríceps|mobilidade|-||ombro,cotovelo
+Spinal_Stretch|Rotação de coluna sentado|mobilidade|-||toracica
+Upper_Back_Stretch|Alongamento da parte alta das costas|mobilidade|-||toracica,ombro
+Dynamic_Back_Stretch|Alongamento dinâmico de costas|mobilidade|-||toracica
+Standing_Lateral_Stretch|Alongamento lateral de tronco em pé|mobilidade|-||toracica
+Windmills|Moinho de vento|mobilidade|-|lombar|toracica,quadril
+Pelvic_Tilt_Into_Bridge|Retroversão pélvica até a ponte|mobilidade|-||lombar,quadril
+Hug_Knees_To_Chest|Joelhos ao peito|mobilidade|-||lombar
+Wrist_Circles|Círculos de punho|mobilidade|-||punho
+Kneeling_Forearm_Stretch|Alongamento de antebraço ajoelhado|mobilidade|-||punho,cotovelo
+Side_Neck_Stretch|Alongamento lateral de pescoço|mobilidade|-||cervical
+Chin_To_Chest_Stretch|Alongamento de pescoço (queixo ao peito)|mobilidade|-||cervical
+Piriformis-SMR|Liberação do piriforme com rolo|mobilidade|rolo||quadril
+Iliotibial_Tract-SMR|Liberação da banda iliotibial com rolo|mobilidade|rolo||quadril,joelho
+Quadriceps-SMR|Liberação de quadríceps com rolo|mobilidade|rolo||joelho,quadril
+Calves-SMR|Liberação de panturrilha com rolo|mobilidade|rolo||tornozelo
+Latissimus_Dorsi-SMR|Liberação de dorsal com rolo|mobilidade|rolo||ombro
+Rhomboids-SMR|Liberação da parte alta das costas com rolo|mobilidade|rolo||toracica
