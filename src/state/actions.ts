@@ -4,7 +4,9 @@ import { generateProgram, suggestLoad } from '../engine'
 import { kcal, MET } from '../engine/cardio'
 import { exerciseHistory, liveElapsedMs, localStamp } from '../engine/history'
 import { prescribe } from '../engine/prescription'
-import type { Environment, LiveWorkout, Profile, Program, SetLog, WorkoutLog } from '../types'
+import { cycleInfo, deloadSession, deloadSuggestion } from '../engine/periodization'
+import { blockMinutes, cleanGroups } from '../engine/session'
+import type { Environment, LiveWorkout, Profile, Program, SessionPlan, SetLog, WorkoutLog } from '../types'
 
 // Tudo que grava no banco local passa por aqui. As telas leem pelos hooks (state/hooks.ts).
 
@@ -23,7 +25,11 @@ export async function regenerate(opts: { newVariation?: boolean } = {}): Promise
   if (!environment) return
   const current = await latestProgram()
   const seed = opts.newVariation || !current ? Math.floor(Math.random() * 1e6) : current.seed
-  const program = generateProgram({ profile, environment, exercises: EXERCISES, seed })
+  const fresh = opts.newVariation || !current
+  const program = {
+    ...generateProgram({ profile, environment, exercises: EXERCISES, seed }),
+    cycleStart: fresh ? new Date().toISOString() : (current.cycleStart ?? current.createdAt),
+  }
   await db.transaction('rw', db.programs, async () => {
     await db.programs.clear()
     await db.programs.add(program)
@@ -47,9 +53,38 @@ export async function swapExercise(sessionKey: string, index: number, newExercis
   const sessions = program.sessions.map((s) => {
     if (s.key !== sessionKey) return s
     const strength = s.strength.map((x, i) =>
-      i === index ? prescribe(newExerciseId, x.slot, x.priority, profile.level, profile.goal) : x,
+      i === index ? { ...prescribe(newExerciseId, x.slot, x.priority, profile.level, profile.goal), ...(x.group ? { group: x.group } : {}) } : x,
     )
     return { ...s, strength }
+  })
+  await db.programs.update(program.id, { sessions })
+}
+
+/** Junta o exercício `index` com o seguinte numa supersérie, ou separa se já estiverem juntos. */
+export async function toggleSuperset(sessionKey: string, index: number): Promise<void> {
+  const program = await latestProgram()
+  if (!program?.id) return
+  const sessions = program.sessions.map((s) => {
+    if (s.key !== sessionKey) return s
+    const a = s.strength[index]
+    const b = s.strength[index + 1]
+    if (!a || !b) return s
+    const joined = !!a.group && a.group === b.group
+    const used = new Set(s.strength.map((x) => x.group).filter(Boolean))
+    let n = 1
+    while (used.has(`S${n}`)) n++
+    const strength = cleanGroups(
+      s.strength.map((x, i) => {
+        if (i !== index && i !== index + 1) return x
+        if (joined) {
+          const { group: _drop, ...rest } = x
+          return rest
+        }
+        return { ...x, group: `S${n}` }
+      }),
+    )
+    const estimatedMinutes = blockMinutes(s.mobility, 15) + blockMinutes(strength) + (s.cardio?.minutes ?? 0)
+    return { ...s, strength, estimatedMinutes }
   })
   await db.programs.update(program.id, { sessions })
 }
@@ -81,21 +116,68 @@ export async function deleteEnvironment(id: number): Promise<void> {
 
 /** Carga sugerida pela progressão dupla, a partir do histórico registrado. */
 export async function suggestionsFor(sessionKey: string) {
-  const [program, logs] = await Promise.all([latestProgram(), db.logs.toArray()])
+  const [program, logs, profile] = await Promise.all([latestProgram(), db.logs.toArray(), db.profile.get('me')])
   const session = program?.sessions.find((s) => s.key === sessionKey)
-  if (!session) return []
+  if (!session || !program) return []
+  const deload = currentCycle(program, profile)?.deload
   return session.strength.map((plan) => {
     const ex = EXERCISE_BY_ID.get(plan.exerciseId)
-    return ex ? suggestLoad(plan, ex, exerciseHistory(logs, plan.exerciseId)) : { reason: 'sem_historico' as const }
+    const s = ex ? suggestLoad(plan, ex, exerciseHistory(logs, plan.exerciseId)) : { reason: 'sem_historico' as const }
+    return deload ? deloadSuggestion(s) : s
   })
+}
+
+/** Ciclo atual de periodização, ou null se a pessoa desligou. */
+export function currentCycle(program: Program, profile: Profile | undefined | null) {
+  if (profile?.periodization === false) return null
+  return cycleInfo(program.cycleStart ?? program.createdAt)
+}
+
+/** A sessão como deve ser feita hoje (versão de deload na semana 5). */
+export function sessionForToday<T extends SessionPlan>(session: T, cycle: ReturnType<typeof currentCycle>): T {
+  return cycle?.deload ? (deloadSession(session) as T) : session
+}
+
+const NEW_CYCLE_KEY = 'treino:novo-ciclo'
+
+/** Ciclo terminou e não há treino em andamento: gera uma variação nova e marca para avisar em Hoje. */
+export async function ensureCycle(): Promise<void> {
+  const [program, profile, live] = await Promise.all([latestProgram(), db.profile.get('me'), db.live.get('current')])
+  if (!program || !profile || live) return
+  if (!currentCycle(program, profile)?.expired) return
+  await regenerate({ newVariation: true })
+  try {
+    localStorage.setItem(NEW_CYCLE_KEY, String(Date.now()))
+  } catch {
+    // Sem armazenamento: só não mostra o aviso.
+  }
+}
+
+/** Mostra o aviso de ciclo novo por 7 dias, até a pessoa dispensar. */
+export function newCycleNotice(): boolean {
+  try {
+    const at = Number(localStorage.getItem(NEW_CYCLE_KEY) || 0)
+    return at > 0 && Date.now() - at < 7 * 86_400_000
+  } catch {
+    return false
+  }
+}
+
+export function dismissNewCycleNotice() {
+  try {
+    localStorage.removeItem(NEW_CYCLE_KEY)
+  } catch {
+    // nada a fazer
+  }
 }
 
 export async function startLive(sessionKey: string): Promise<void> {
   const existing = await db.live.get('current')
   if (existing?.sessionKey === sessionKey) return
-  const program = await latestProgram()
-  const session = program?.sessions.find((s) => s.key === sessionKey)
-  if (!program?.id || !session) return
+  const [program, profile] = await Promise.all([latestProgram(), db.profile.get('me')])
+  const planned = program?.sessions.find((s) => s.key === sessionKey)
+  if (!program?.id || !planned) return
+  const session = sessionForToday(planned, currentCycle(program, profile))
   const suggestions = await suggestionsFor(sessionKey)
   await db.live.put({
     id: 'current',
@@ -153,6 +235,7 @@ export async function finishLive(): Promise<number | undefined> {
       loadKg: toNumber(s.loadKg),
       reps: Math.round(toNumber(s.reps || String(plan.repsMax))),
       done: s.done,
+      ...(s.effort ? { effort: s.effort } : {}),
     })),
   )
   const durationMin = Math.max(1, Math.round(liveElapsedMs(live) / 60000))

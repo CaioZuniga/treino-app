@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { exerciseName } from '../data/catalog'
 import { liveElapsedMs } from '../engine/history'
 import { useLive } from '../state/hooks'
+import { buildSteps } from '../state/liveSteps'
 import { formatClock, useTick } from './Timer'
 
 /** Barra fixa acima das abas enquanto há treino em andamento: mostra onde parou e volta ao treino com um toque. */
@@ -11,14 +12,15 @@ export function LiveBar() {
   if (!live) return null
 
   const { session } = live
-  const steps = (session.mobility.length ? 1 : 0) + session.strength.length + (session.cardio ? 1 : 0)
-  const strengthIndex = live.step - (session.mobility.length ? 1 : 0)
+  const all = buildSteps(session)
+  const steps = all.length
+  const step = all[Math.min(live.step, steps - 1)]
   const current =
-    strengthIndex < 0
+    step.kind === 'mobilidade'
       ? 'Aquecimento'
-      : strengthIndex >= session.strength.length
+      : step.kind === 'aerobico'
         ? 'Aeróbico'
-        : exerciseName(session.strength[strengthIndex].exerciseId)
+        : step.indexes.map((i) => exerciseName(session.strength[i].exerciseId)).join(' + ')
   const paused = !!live.pausedAt
 
   return (

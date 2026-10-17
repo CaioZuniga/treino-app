@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
+import { BackupReminder } from '../components/BackupReminder'
+import { CycleBar, CycleNotices } from '../components/CycleCard'
 import { InstallCard } from '../components/InstallCard'
 import { Dot, Loading } from '../components/ui'
 import { dayKey, WeekStrip } from '../components/WeekStrip'
 import { SPLIT_LABELS } from '../engine'
 import { blockMinutes } from '../engine/session'
-import { initials, setActiveEnvironment } from '../state/actions'
+import { currentCycle, initials, sessionForToday, setActiveEnvironment } from '../state/actions'
 import { useEnvironments, useLive, useLogs, useProfile, useProgram } from '../state/hooks'
 
 const CARDIO_SHORT = { hiit: 'HIIT', liss: 'LISS', circuito: 'circuito' } as const
@@ -18,7 +20,8 @@ export function Hoje() {
   if (!profile || !program || !environments || !logs || live === undefined) return <Loading />
 
   // Próximo treino: segue a ordem da divisão a partir de quantos treinos já foram feitos.
-  const session = live ? live.session : program.sessions[logs.length % program.sessions.length]
+  const cycle = currentCycle(program, profile)
+  const session = live ? live.session : sessionForToday(program.sessions[logs.length % program.sessions.length], cycle)
   const env = environments.find((e) => e.id === profile.activeEnvironmentId)
   const today = new Date()
   const monday = new Date(today)
@@ -71,6 +74,11 @@ export function Hoje() {
             </span>
           )}
         </div>
+        {cycle && (
+          <div className="relative">
+            <CycleBar cycle={cycle} />
+          </div>
+        )}
         <div className="relative flex gap-2">
           <Link to={`/aovivo/${session.key}`} className="btn btn-lime flex-1">
             {live ? 'Continuar treino' : 'Começar treino'}
@@ -86,6 +94,10 @@ export function Hoje() {
         <Stat value={String(logs.length)} label="treinos no total" />
         <Stat value={String(program.sessions.length)} label={`dias na divisão`} />
       </div>
+
+      {cycle && <CycleNotices cycle={cycle} />}
+
+      <BackupReminder firstLogDate={logs[0]?.date} />
 
       <InstallCard dismissible />
 

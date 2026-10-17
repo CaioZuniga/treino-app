@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { shareWorkout } from '../state/shareImage'
 import { Loading, ScreenHeader } from '../components/ui'
 import { exerciseName } from '../data/catalog'
 import { bestLoad, formatVolume, personalRecords, volumeKg } from '../engine/history'
@@ -11,6 +13,7 @@ export function Resumo() {
   const log = useLog(id)
   const logs = useLogs()
   const program = useProgram()
+  const [sharing, setSharing] = useState('')
   if (log === undefined || !logs || program === undefined) return <Loading />
   if (log === null) return <ScreenHeader back title="Treino não encontrado" />
 
@@ -86,9 +89,32 @@ export function Resumo() {
           Próximo: Treino {next.key} · {next.title}
         </p>
       )}
-      <Link to="/" className="btn btn-lime">
-        Voltar para o início
-      </Link>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          className="btn btn-ghost flex-1"
+          disabled={sharing === 'gerando'}
+          onClick={async () => {
+            setSharing('gerando')
+            try {
+              const r = await shareWorkout(log, previous)
+              setSharing(r === 'baixado' ? 'Imagem salva.' : '')
+            } catch {
+              setSharing('Não deu para gerar a imagem.')
+            }
+          }}
+        >
+          {sharing === 'gerando' ? 'Gerando…' : 'Compartilhar'}
+        </button>
+        <Link to="/" className="btn btn-lime flex-1">
+          Concluir
+        </Link>
+      </div>
+      {sharing && sharing !== 'gerando' && (
+        <p role="status" className="text-center text-xs text-muted">
+          {sharing}
+        </p>
+      )}
     </div>
   )
 }

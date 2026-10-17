@@ -3,7 +3,7 @@ import { cardioSchedule, kcal, MET, planCardio } from './cardio'
 import { planMobility } from './mobility'
 import { prescribe } from './prescription'
 import { rankCandidates, type SelectionContext } from './select'
-import { blockMinutes } from './session'
+import { blockMinutes, cleanGroups, pairAccessories } from './session'
 import { FALLBACK, FOCUS, REGION_FALLBACK, SPLITS, type DayTemplate, type Slot } from './splits'
 
 // Junta as regras 1 a 6 e 9: monta cada dia da divisão escolhida para o ambiente e o perfil.
@@ -90,7 +90,7 @@ function fitToTime(
   }
   while (over() && m.length > MIN_MOBILITY_ITEMS) m = m.slice(0, -1)
   dropLast('secundario')
-  return { mobility: m, strength: s, cardio: c }
+  return { mobility: m, strength: cleanGroups(s), cardio: c }
 }
 
 export function generateProgram(input: GenerateInput): Program {
@@ -102,7 +102,8 @@ export function generateProgram(input: GenerateInput): Program {
   const usedElsewhere = new Set<string>()
 
   const sessions: SessionPlan[] = days.map((day, i) => {
-    const strength = fillSlots(withFocus(day, profile.focus), day.region, ctx, input, usedElsewhere)
+    const filled = fillSlots(withFocus(day, profile.focus), day.region, ctx, input, usedElsewhere)
+    const strength = profile.supersets ? pairAccessories(filled) : filled
     strength.forEach((x) => usedElsewhere.add(x.exerciseId))
 
     const mobility = planMobility(strength.map((x) => x.slot), profile.injuries, ctx)

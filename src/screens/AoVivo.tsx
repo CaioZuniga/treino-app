@@ -7,11 +7,17 @@ import { exerciseName } from '../data/catalog'
 import type { LoadSuggestion } from '../engine'
 import { liveElapsedMs } from '../engine/history'
 import { discardLive, finishLive, pauseLive, resumeLive, startLive, suggestionsFor, updateLive } from '../state/actions'
+import { buildSteps, type Step } from '../state/liveSteps'
 import { haptic, unlockAudio } from '../state/platform'
 import { useLive } from '../state/hooks'
-import type { LiveSet, LiveWorkout } from '../types'
+import type { Effort, LiveSet, LiveWorkout } from '../types'
 
-type Step = { kind: 'mobilidade' } | { kind: 'musculacao'; index: number } | { kind: 'aerobico' }
+const EFFORTS: { value: Effort; label: string }[] = [
+  { value: 'facil', label: 'Fácil' },
+  { value: 'ok', label: 'Ok' },
+  { value: 'limite', label: 'No limite' },
+]
+
 
 const PRIORITY_LABEL = { principal: 'Principal', secundario: 'Secundário', acessorio: 'Acessório' } as const
 
@@ -19,6 +25,9 @@ function suggestionText(s: LoadSuggestion | undefined): string {
   if (!s || s.reason === 'sem_historico') return 'Primeira vez: comece com uma carga em que você faria 2 repetições a mais.'
   const kg = String(s.loadKg).replace('.', ',')
   if (s.reason === 'subir') return `Você fechou a faixa da última vez: suba para ${kg} kg.`
+  if (s.reason === 'subir_mais') return `Fechou a faixa e achou fácil: dá para subir mais, para ${kg} kg.`
+  if (s.reason === 'semana_deload') return `Semana de deload: use ${kg} kg, 10% mais leve, e foque na técnica.`
+  if (s.reason === 'leve') return `Da última vez ficou fácil: suba para ${kg} kg.`
   if (s.reason === 'deload') return `Duas sessões abaixo da faixa: alivie para ${kg} kg e reconstrua.`
   return `Mantenha ${kg} kg até fechar todas as séries no topo da faixa.`
 }
@@ -87,11 +96,7 @@ function Shell({ children }: { children: ReactNode }) {
 function LiveSession({ live }: { live: LiveWorkout }) {
   const navigate = useNavigate()
   const session = live.session
-  const steps: Step[] = [
-    ...(session.mobility.length ? [{ kind: 'mobilidade' } as const] : []),
-    ...session.strength.map((_, index) => ({ kind: 'musculacao', index }) as const),
-    ...(session.cardio ? [{ kind: 'aerobico' } as const] : []),
-  ]
+  const steps: Step[] = buildSteps(session)
   const stepIndex = Math.min(live.step, steps.length - 1)
   const step = steps[stepIndex]
   const isLast = stepIndex === steps.length - 1
@@ -225,18 +230,49 @@ function LiveSession({ live }: { live: LiveWorkout }) {
         </section>
       )}
 
-      {step.kind === 'musculacao' && (
+      {step.kind === 'musculacao' && step.indexes.length === 1 && (
         <StrengthStep
-          key={step.index}
-          index={step.index}
+          key={step.indexes[0]}
+          index={step.indexes[0]}
           total={session.strength.length}
           live={live}
-          sets={sets[step.index] ?? []}
-          suggestion={suggestions[step.index]}
+          sets={sets[step.indexes[0]] ?? []}
+          suggestion={suggestions[step.indexes[0]]}
           rest={rest}
           onRest={setRest}
-          onChange={(exSets) => saveSets(sets.map((x, i) => (i === step.index ? exSets : x)))}
+          onChange={(exSets) => saveSets(sets.map((x, i) => (i === step.indexes[0] ? exSets : x)))}
         />
+      )}
+
+      {step.kind === 'musculacao' && step.indexes.length > 1 && (
+        <section className="flex flex-col gap-4">
+          <div className="rounded-2xl border border-lime/30 bg-lime/[0.06] p-3 text-xs leading-relaxed">
+            <b className="text-lime">Supersérie.</b> Faça uma série de cada exercício, um depois do outro, sem descanso. O descanso vem depois da rodada.
+          </div>
+          {rest && (
+            <RingTimer
+              countdown={rest}
+              label="próxima rodada"
+              onAdjust={(d) => setRest({ endsAt: rest.endsAt + d * 1000, total: Math.max(rest.total, (rest.endsAt + d * 1000 - Date.now()) / 1000) })}
+              onSkip={() => setRest(null)}
+            />
+          )}
+          {step.indexes.map((idx, pos) => (
+            <StrengthStep
+              key={idx}
+              index={idx}
+              total={session.strength.length}
+              tag={`${String.fromCharCode(65 + pos)}`}
+              live={live}
+              sets={sets[idx] ?? []}
+              suggestion={suggestions[idx]}
+              rest={null}
+              restOnDone={pos === step.indexes.length - 1}
+              onRest={setRest}
+              onChange={(exSets) => saveSets(sets.map((x, i) => (i === idx ? exSets : x)))}
+            />
+          ))}
+        </section>
       )}
 
       {step.kind === 'aerobico' && session.cardio && <CardioStep live={live} />}
@@ -313,13 +349,16 @@ function LiveSession({ live }: { live: LiveWorkout }) {
 
 function nextLabel(next: Step): string {
   if (next.kind === 'aerobico') return 'Ir para o aeróbico'
-  if (next.kind === 'musculacao' && next.index === 0) return 'Começar musculação'
+  if (next.kind === 'musculacao' && next.indexes[0] === 0) return 'Começar musculação'
+  if (next.kind === 'musculacao' && next.indexes.length > 1) return 'Próxima: supersérie'
   return 'Próximo exercício'
 }
 
 function StrengthStep({
   index,
   total,
+  tag,
+  restOnDone = true,
   live,
   sets,
   suggestion,
@@ -329,6 +368,10 @@ function StrengthStep({
 }: {
   index: number
   total: number
+  /** Letra do exercício dentro da supersérie (A, B). */
+  tag?: string
+  /** Na supersérie, só o último exercício da rodada inicia o descanso. */
+  restOnDone?: boolean
   live: LiveWorkout
   sets: LiveSet[]
   suggestion?: LoadSuggestion
@@ -351,13 +394,14 @@ function StrengthStep({
       return s
     })
     onChange(next)
-    if (done && plan.restSec > 0) onRest({ endsAt: Date.now() + plan.restSec * 1000, total: plan.restSec })
+    if (done && restOnDone && plan.restSec > 0) onRest({ endsAt: Date.now() + plan.restSec * 1000, total: plan.restSec })
   }
 
   return (
     <section className="flex flex-col gap-4">
       <div>
-        <div className="eyebrow">
+        <div className="eyebrow flex items-center gap-2">
+          {tag && <span className="rounded-md bg-lime px-1.5 py-0.5 font-mono text-[11px] text-lime-ink">{tag}</span>}
           {PRIORITY_LABEL[plan.priority]} · exercício {index + 1} de {total}
         </div>
         <Link to={`/exercicio/${plan.exerciseId}`} className="mt-1.5 block font-display text-[26px] leading-tight font-bold text-balance">
@@ -439,6 +483,28 @@ function SetRow({
       >
         ✓
       </button>
+      {set.done && (
+        <div className="col-span-4 -mt-1 mb-1 flex items-center gap-1.5 pl-7" role="group" aria-label={`Esforço da série ${index + 1}`}>
+          <span className="mr-1 text-[11px] text-dim">Como foi?</span>
+          {EFFORTS.map((e) => (
+            <button
+              key={e.value}
+              type="button"
+              aria-pressed={set.effort === e.value}
+              onClick={() => onChange({ effort: set.effort === e.value ? undefined : e.value })}
+              className={`cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-bold ${
+                set.effort === e.value
+                  ? e.value === 'limite'
+                    ? 'border-cardio bg-cardio/15 text-cardio'
+                    : 'border-lime/50 bg-lime/12 text-lime'
+                  : 'border-line text-muted'
+              }`}
+            >
+              {e.label}
+            </button>
+          ))}
+        </div>
+      )}
     </>
   )
 }

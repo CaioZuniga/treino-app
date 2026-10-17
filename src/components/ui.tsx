@@ -238,3 +238,22 @@ export function Dot({ color }: { color: 'lime' | 'mob' | 'cardio' }) {
 export function Loading() {
   return <div className="py-16 text-center text-sm text-muted">Carregando…</div>
 }
+
+/** Interruptor de liga/desliga com título e explicação. */
+export function Switch({ id, label, hint, checked, onChange }: { id: string; label: string; hint?: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label htmlFor={id} className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-line bg-card p-3.5">
+      <span>
+        <span className="block text-sm font-bold">{label}</span>
+        {hint && <span className="mt-0.5 block text-xs leading-relaxed text-muted">{hint}</span>}
+      </span>
+      <input id={id} type="checkbox" role="switch" checked={checked} onChange={(e) => onChange(e.target.checked)} className="peer sr-only" />
+      <span
+        aria-hidden="true"
+        className={`relative h-7 w-12 shrink-0 rounded-full border transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-lime ${checked ? 'border-lime bg-lime' : 'border-line bg-card2'}`}
+      >
+        <span className={`absolute top-0.5 h-[22px] w-[22px] rounded-full transition-transform ${checked ? 'translate-x-[22px] bg-lime-ink' : 'translate-x-0.5 bg-muted'}`} />
+      </span>
+    </label>
+  )
+}

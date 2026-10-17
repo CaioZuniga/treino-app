@@ -67,12 +67,16 @@ Código em `src/engine/`, testes em `src/engine/engine.test.ts` (todas as 180 co
    - HIIT: 30 s forte / 60 s leve (iniciante 20/70), a 85–90% da FC máxima. LISS: zona 2, a 60–70%. FC máxima pela fórmula de Tanaka (208 − 0,7 × idade).
    - Sem aparelho: circuito de condicionamento (40 s de esforço / 20 s de pausa).
 6. **Mobilidade** (`mobility.ts`): de 4 a 5 exercícios, 2 séries cada. Primeiro as articulações das lesões, depois as mais usadas no dia, preferindo movimentos dinâmicos.
-7. **Progressão dupla** (`progression.ts`):
+7. **Progressão dupla com esforço percebido** (`progression.ts`). Cada série pode ser marcada como fácil, ok ou no limite:
    - Todas as séries no topo da faixa → +5 kg em agachamento, dobradiça e glúteo compostos; +2,5 kg nos demais.
    - Abaixo do mínimo em 2 sessões seguidas → −10% (deload).
+   - Fechou o topo e todas foram "fácil" → sobe o dobro.
+   - Dentro da faixa, mas todas "fácil" → a carga está leve, sobe um passo.
    - Arredonda para 0,5 kg.
 8. **Trocar exercício** (`alternatives`): mesmo padrão, dentro do ambiente, seguro, fora da sessão, ordenado pela mesma pontuação.
 9. **Calorias**: MET × peso × tempo (musculação 5, mobilidade 2,5, HIIT e circuito 8, LISS 4,5).
+10. **Periodização** (`periodization.ts`): ciclos de 5 semanas, 4 de progressão e a 5ª de deload (séries × 0,6 e cargas 10% mais leves). No fim do ciclo, o app gera uma variação nova sozinho. Editar o perfil não reinicia o ciclo. Pode ser desligada no Perfil.
+11. **Superséries** (`session.ts`): com a opção ligada, o motor junta os acessórios vizinhos em pares (core fica de fora); também dá para juntar ou separar manualmente na tela Treino. Na supersérie, o descanso só vem depois da rodada, e o tempo estimado considera isso.
 
 ## Telas
 
@@ -88,6 +92,14 @@ Onboarding, Hoje, Semana, Treino, Detalhe do exercício, Ao vivo, Resumo pós-tr
 | 3 | Telas base | Onboarding, ambientes, perfil, hoje, semana, treino (com troca), detalhe | Feito |
 | 4 | Execução | Ao vivo (séries, carga sugerida, timer de descanso, aeróbico, progresso salvo), resumo com recordes, aba Progresso com gráfico e histórico | Feito |
 | 5 | Publicação | iPhone e Android: ícones PNG e maskable, metatags do iOS, fontes locais, offline (app e fotos), instalar app, backup pela folha de compartilhar, ajustes de toque, zoom e áudio, transições | Feito |
+
+## Depois das fases
+
+- Tela de instalação antes do cadastro (no iPhone o Safari e o app instalado guardam dados separados).
+- Treino ao vivo: minimizar, pausar e barra de treino em andamento.
+- Lembrete de backup a cada 2 semanas.
+- Esforço percebido, superséries, periodização e compartilhar o treino como imagem.
+- Decidido não fazer: notificação com o app fechado (exigiria servidor de push). Sincronização na nuvem fica para depois.
 
 ## Aviso
 

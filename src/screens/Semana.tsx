@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Dot, Loading, ScreenHeader } from '../components/ui'
 import { SPLIT_LABELS, weekSchedule } from '../engine'
-import { regenerate } from '../state/actions'
+import { CycleBar } from '../components/CycleCard'
+import { currentCycle, regenerate } from '../state/actions'
 import { useProfile, useProgram } from '../state/hooks'
 
 const CARDIO_LABEL = { hiit: 'HIIT', liss: 'Aeróbico leve', circuito: 'Circuito' } as const
@@ -19,6 +20,7 @@ export function Semana() {
   return (
     <div className="flex flex-col gap-4">
       <ScreenHeader eyebrow={`${SPLIT_LABELS[program.split]} · ${profile.daysPerWeek} dias`} title="Sua semana" />
+      {currentCycle(program, profile) && <CycleBar cycle={currentCycle(program, profile)!} />}
 
       <ol className="m-0 flex list-none flex-col gap-2.5 p-0">
         {order.map((key, i) => {
@@ -54,7 +56,7 @@ export function Semana() {
       <div className="card flex flex-col gap-3">
         <h2 className="font-display text-[15px] font-medium">Quer variar?</h2>
         <p className="text-xs leading-relaxed text-muted">
-          Gera uma nova combinação de exercícios com as mesmas regras. Bom para trocar o estímulo a cada 4 a 6 semanas.
+          Gera uma nova combinação de exercícios com as mesmas regras e começa um ciclo novo. Com a periodização ligada, isso já acontece sozinho a cada 5 semanas.
         </p>
         <button
           type="button"

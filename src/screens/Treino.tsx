@@ -5,8 +5,8 @@ import { Dot, Loading, ScreenHeader } from '../components/ui'
 import { EXERCISES, exerciseName } from '../data/catalog'
 import { GOAL_LABELS } from '../data/labels'
 import { alternatives, SPLIT_LABELS } from '../engine'
-import { blockMinutes } from '../engine/session'
-import { swapExercise } from '../state/actions'
+import { blockMinutes, groupIndexes } from '../engine/session'
+import { currentCycle, sessionForToday, swapExercise, toggleSuperset } from '../state/actions'
 import { useEnvironment, useLive, useProfile, useProgram } from '../state/hooks'
 
 const CARDIO_TITLE = { hiit: 'HIIT', liss: 'Aeróbico leve', circuito: 'Circuito' } as const
@@ -20,8 +20,10 @@ export function Treino() {
   const [swapIndex, setSwapIndex] = useState<number | null>(null)
   if (!profile || !program || env === undefined) return <Loading />
 
-  const session = program.sessions.find((s) => s.key === key)
-  if (!session) return <ScreenHeader back title="Treino não encontrado" />
+  const planned = program.sessions.find((s) => s.key === key)
+  if (!planned) return <ScreenHeader back title="Treino não encontrado" />
+  const cycle = currentCycle(program, profile)
+  const session = sessionForToday(planned, cycle)
 
   const ctx = { profile, available: new Set(env?.equipment ?? []), exercises: EXERCISES, seed: program.seed }
   const swapping = swapIndex === null ? null : session.strength[swapIndex]
@@ -35,6 +37,11 @@ export function Treino() {
       <p className="-mt-2 text-xs text-muted">
         {session.subtitle} · {session.estimatedMinutes} min · ~{session.kcal} kcal
       </p>
+      {cycle?.deload && (
+        <p className="-mt-2 rounded-2xl border border-cardio/40 bg-cardio/10 p-3 text-xs leading-relaxed">
+          <b className="text-cardio">Semana de deload:</b> menos séries e cargas 10% mais leves. O treino ao vivo já sugere as cargas certas.
+        </p>
+      )}
 
       <Block color="mob" title={`Mobilidade · ${blockMinutes(session.mobility, 15)} min`} note="aquecimento">
         {session.mobility.map((x) => (
@@ -43,9 +50,38 @@ export function Treino() {
       </Block>
 
       <Block color="lime" title={`Musculação · ${blockMinutes(session.strength)} min`} note="toque para ver detalhes">
-        {session.strength.map((x, i) => (
-          <ExerciseRow key={`${x.exerciseId}-${i}`} planned={x} accent="lime" onSwap={() => setSwapIndex(i)} />
-        ))}
+        {groupIndexes(session.strength).map((idx, g, groups) => {
+          const last = idx[idx.length - 1]
+          const canJoinNext = g < groups.length - 1 && idx.length === 1 && groups[g + 1].length === 1
+          return (
+            <div key={idx.join('-')} className="flex flex-col gap-2">
+              {idx.length > 1 ? (
+                <div className="flex flex-col gap-2 rounded-[20px] border border-lime/35 bg-lime/[0.04] p-2">
+                  <div className="flex items-center justify-between px-1.5 pt-0.5">
+                    <span className="text-[11px] font-bold tracking-[0.08em] text-lime uppercase">Supersérie</span>
+                    <button type="button" onClick={() => toggleSuperset(session.key, idx[0])} className="cursor-pointer text-[11px] font-semibold text-muted">
+                      Separar
+                    </button>
+                  </div>
+                  {idx.map((i) => (
+                    <ExerciseRow key={`${session.strength[i].exerciseId}-${i}`} planned={session.strength[i]} accent="lime" onSwap={() => setSwapIndex(i)} />
+                  ))}
+                </div>
+              ) : (
+                <ExerciseRow planned={session.strength[idx[0]]} accent="lime" onSwap={() => setSwapIndex(idx[0])} />
+              )}
+              {canJoinNext && (
+                <button
+                  type="button"
+                  onClick={() => toggleSuperset(session.key, last)}
+                  className="-my-1 cursor-pointer self-center rounded-full px-3 py-1 text-[11px] font-semibold text-dim"
+                >
+                  + juntar com o próximo em supersérie
+                </button>
+              )}
+            </div>
+          )
+        })}
       </Block>
 
       {session.cardio && (

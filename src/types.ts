@@ -55,6 +55,10 @@ export interface Profile {
   dislikes: string[]
   focus: string[]
   activeEnvironmentId?: number
+  /** Junta os acessórios em superséries para encurtar o treino. */
+  supersets?: boolean
+  /** Ciclos de 5 semanas com deload e troca automática de exercícios. Ausente = ligado. */
+  periodization?: boolean
 }
 
 export interface Environment {
@@ -80,6 +84,8 @@ export interface PlannedExercise {
   repsMax: number
   restSec: number
   loadKg?: number
+  /** Exercícios seguidos com o mesmo grupo formam uma supersérie (sem descanso entre eles). */
+  group?: string
 }
 
 export interface CardioPlan {
@@ -110,8 +116,13 @@ export interface Program {
   environmentId: number
   /** Semente da variação: o mesmo perfil e ambiente com a mesma semente gera o mesmo treino. */
   seed: number
+  /** Início do ciclo de periodização. Editar o perfil não reinicia; uma variação nova reinicia. */
+  cycleStart?: string
   sessions: SessionPlan[]
 }
+
+/** Esforço percebido da série: fácil (sobraram 3+ repetições), ok (1–2) ou no limite (0). */
+export type Effort = 'facil' | 'ok' | 'limite'
 
 export interface SetLog {
   exerciseId: string
@@ -119,6 +130,7 @@ export interface SetLog {
   loadKg: number
   reps: number
   done: boolean
+  effort?: Effort
 }
 
 export interface WorkoutLog {
@@ -139,6 +151,7 @@ export interface LiveSet {
   loadKg: string
   reps: string
   done: boolean
+  effort?: Effort
 }
 
 /** Treino em andamento: fica salvo para não se perder se o app fechar no meio. */

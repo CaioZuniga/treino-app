@@ -14,6 +14,7 @@ import { Progresso } from './screens/Progresso'
 import { Resumo } from './screens/Resumo'
 import { Semana } from './screens/Semana'
 import { Treino } from './screens/Treino'
+import { ensureCycle } from './state/actions'
 import { useProfile } from './state/hooks'
 import { shouldOfferInstallFirst } from './state/platform'
 
@@ -50,6 +51,10 @@ function TabsLayout() {
   useEffect(() => {
     mainRef.current?.scrollTo(0, 0)
   }, [pathname])
+  // Ao abrir o app: se o ciclo de 5 semanas terminou, gera a variação do próximo.
+  useEffect(() => {
+    if (profile) ensureCycle()
+  }, [profile])
   if (profile === undefined) return <Loading />
   // Primeira visita: no navegador do celular, instala antes do cadastro.
   if (profile === null) return <Navigate to={shouldOfferInstallFirst() ? '/instalar' : '/onboarding'} replace />

@@ -131,6 +131,16 @@ describe('generateProgram — regras', () => {
     expect(short.estimatedMinutes).toBeLessThanOrEqual(35)
   })
 
+  it('com superséries, os acessórios vêm em pares e o treino cabe no tempo', () => {
+    const program = generateProgram({ profile: profile({ supersets: true, minutesPerSession: 45 }), environment: GYM, exercises })
+    for (const s of program.sessions) {
+      const groups = s.strength.filter((x) => x.group).map((x) => x.group)
+      for (const g of new Set(groups)) expect(groups.filter((x) => x === g)).toHaveLength(2)
+      expect(s.estimatedMinutes).toBeLessThanOrEqual(45)
+    }
+    expect(program.sessions.some((s) => s.strength.some((x) => x.group))).toBe(true)
+  })
+
   it('emagrecimento alterna HIIT e LISS em toda sessão', () => {
     const program = generateProgram({ profile: profile({ goal: 'emagrecimento' }), environment: GYM, exercises })
     expect(program.sessions.map((s) => s.cardio?.kind)).toEqual(['hiit', 'liss', 'hiit', 'liss'])
@@ -227,6 +237,20 @@ describe('progressão dupla', () => {
 
   it('abaixo do mínimo em duas sessões seguidas: deload de 10%', () => {
     expect(suggestLoad(plan, squat, [session(60, [8, 7, 6]), session(60, [8, 6, 6])])).toEqual({ reason: 'deload', loadKg: 54 })
+  })
+
+  it('fechou o topo e foi tudo fácil: sobe o dobro', () => {
+    const easy = { date: 'x', sets: [10, 10, 10].map((r) => ({ loadKg: 60, reps: r, done: true, effort: 'facil' as const })) }
+    expect(suggestLoad(plan, squat, [easy])).toEqual({ reason: 'subir_mais', loadKg: 70 })
+  })
+
+  it('dentro da faixa mas tudo fácil: a carga está leve, sobe', () => {
+    const easy = { date: 'x', sets: [9, 9, 8].map((r) => ({ loadKg: 60, reps: r, done: true, effort: 'facil' as const })) }
+    expect(suggestLoad(plan, squat, [easy])).toEqual({ reason: 'leve', loadKg: 65 })
+  })
+
+  it('sem marcação de esforço, segue a progressão dupla normal', () => {
+    expect(suggestLoad(plan, squat, [session(60, [9, 9, 8])])).toEqual({ reason: 'manter', loadKg: 60 })
   })
 
   it('uma falha só não dispara deload', () => {

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { InstallCard } from '../components/InstallCard'
-import { ChoiceCards, ChoiceChips, Loading, ScreenHeader, Section, Stepper, TextField } from '../components/ui'
-import { exportBackup, importBackup, type Backup } from '../db/db'
+import { ChoiceCards, ChoiceChips, Loading, ScreenHeader, Section, Stepper, Switch, TextField } from '../components/ui'
+import { importBackup, type Backup } from '../db/db'
+import { backupNow, lastBackupAt } from '../state/backup'
 import { CARDIO_OPTIONS, FOCUS_OPTIONS, GOAL_LABELS, INJURY_LABELS, LEVEL_LABELS, SPLIT_HINTS, suggestedSplit } from '../data/labels'
 import { SPLIT_LABELS } from '../engine'
 import { saveProfile } from '../state/actions'
 import { useProfile, useProgram } from '../state/hooks'
-import { prefetchProgramImages, shareOrDownload } from '../state/platform'
+import { prefetchProgramImages } from '../state/platform'
 import type { Goal, Injury, Level, Profile, Sex, Split } from '../types'
 
 const entries = <K extends string>(labels: Record<K, string>) => (Object.keys(labels) as K[]).map((value) => ({ value, label: labels[value] }))
@@ -38,9 +39,7 @@ export function Perfil() {
   }
 
   const download = async () => {
-    const data = await exportBackup()
-    const file = new File([JSON.stringify(data, null, 1)], `treino-backup-${data.exportedAt.slice(0, 10)}.json`, { type: 'application/json' })
-    const result = await shareOrDownload(file)
+    const result = await backupNow()
     if (result !== 'cancelado') setDeviceStatus(result === 'compartilhado' ? 'Backup enviado.' : 'Backup salvo em Downloads.')
   }
 
@@ -86,6 +85,20 @@ export function Perfil() {
       <Section title="Tempo por treino">
         <ChoiceChips label="Minutos" options={MINUTES.map((m) => ({ value: m, label: `${m} min` }))} value={[String(draft.minutesPerSession)]} onChange={(v) => set('minutesPerSession', Number(v[0]))} />
       </Section>
+      <Switch
+        id="perfil-superseries"
+        label="Superséries nos acessórios"
+        hint="Junta os exercícios acessórios em pares, sem descanso entre eles. Encurta o treino e cabe mais exercício no seu tempo."
+        checked={!!draft.supersets}
+        onChange={(v) => set('supersets', v)}
+      />
+      <Switch
+        id="perfil-periodizacao"
+        label="Periodização automática"
+        hint="Ciclos de 5 semanas: 4 de progressão e 1 de deload. No fim do ciclo, o app varia os exercícios sozinho."
+        checked={draft.periodization !== false}
+        onChange={(v) => set('periodization', v)}
+      />
       <Section title="Divisão">
         <ChoiceCards
           label="Divisão"
@@ -131,6 +144,9 @@ export function Perfil() {
       </Section>
 
       <Section title="Backup" hint="Seus dados ficam só neste aparelho. Exporte um arquivo para guardar no Drive, no iCloud ou mandar para outro celular.">
+        <p className="text-xs text-muted">
+          {lastBackupAt() ? `Último backup: ${new Date(lastBackupAt()!).toLocaleDateString('pt-BR')}` : 'Nenhum backup feito ainda.'} O app lembra a cada 2 semanas.
+        </p>
         <div className="flex gap-2">
           <button type="button" className="btn btn-ghost flex-1" onClick={download}>
             Exportar backup
