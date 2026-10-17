@@ -5,7 +5,8 @@ import { formatClock, RingTimer, useTick, type Countdown } from '../components/T
 import { Dot, Loading } from '../components/ui'
 import { exerciseName } from '../data/catalog'
 import type { LoadSuggestion } from '../engine'
-import { discardLive, finishLive, startLive, suggestionsFor, updateLive } from '../state/actions'
+import { liveElapsedMs } from '../engine/history'
+import { discardLive, finishLive, pauseLive, resumeLive, startLive, suggestionsFor, updateLive } from '../state/actions'
 import { haptic, unlockAudio } from '../state/platform'
 import { useLive } from '../state/hooks'
 import type { LiveSet, LiveWorkout } from '../types'
@@ -128,21 +129,58 @@ function LiveSession({ live }: { live: LiveWorkout }) {
     navigate(id ? `/resumo/${id}` : '/', { replace: true })
   }
   const anyDone = sets.some((ex) => ex.some((s) => s.done))
+  const paused = !!live.pausedAt
+
+  // Minimizar: volta para onde a pessoa estava no app (ou para Hoje). O treino continua salvo e a barra
+  // de treino em andamento aparece em todas as telas.
+  const minimize = () => {
+    const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0
+    if (idx > 0) navigate(-1)
+    else navigate('/')
+  }
+  const togglePause = () => {
+    if (paused) resumeLive()
+    else {
+      setRest(null)
+      pauseLive()
+    }
+  }
 
   return (
     <Shell>
-      <div className="flex items-center justify-between gap-3">
-        <Link
-          to={`/treino/${session.key}`}
-          aria-label="Sair do modo ao vivo (o progresso fica salvo)"
-          className="grid h-10 w-10 place-items-center rounded-full border border-line bg-card2 text-lg"
-        >
-          ×
-        </Link>
-        <span className="font-mono text-xs text-muted">
-          {session.title} · {formatClock((now - live.startedAt) / 1000)}
+      <div className="flex items-center justify-between gap-2">
+        <button type="button" onClick={minimize} className="flex cursor-pointer items-center gap-1.5 rounded-full border border-line bg-card2 py-2 pr-3.5 pl-2.5 text-xs font-bold">
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+          Minimizar
+        </button>
+        <span className={`font-mono text-xs tabular-nums ${paused ? 'text-cardio' : 'text-muted'}`}>
+          {paused ? 'Pausado · ' : ''}
+          {formatClock(liveElapsedMs(live, now) / 1000)}
         </span>
+        <button
+          type="button"
+          onClick={togglePause}
+          aria-pressed={paused}
+          className={`flex cursor-pointer items-center gap-1.5 rounded-full border py-2 pr-3.5 pl-2.5 text-xs font-bold ${paused ? 'border-lime bg-lime text-lime-ink' : 'border-line bg-card2'}`}
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+            {paused ? <path d="M8 5v14l11-7z" /> : <path d="M7 5h4v14H7zM13 5h4v14h-4z" />}
+          </svg>
+          {paused ? 'Continuar' : 'Pausar'}
+        </button>
       </div>
+
+      {paused && (
+        <div className="card flex flex-col gap-3 border-cardio/40">
+          <h2 className="font-display text-lg font-bold">Treino pausado</h2>
+          <p className="text-sm text-muted">O relógio parou e tudo o que você anotou está salvo. Pode minimizar e usar o resto do app.</p>
+          <button type="button" className="btn btn-lime" onClick={togglePause}>
+            Continuar treino
+          </button>
+        </div>
+      )}
 
       <div className="flex gap-1" aria-hidden="true">
         {steps.map((s, i) => (

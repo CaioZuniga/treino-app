@@ -11,7 +11,7 @@ const TABS = [
 export function TabBar() {
   return (
     <nav
-      className="grid grid-cols-5 border-t border-line bg-bg/95 px-2 pt-2"
+      className="grid grid-cols-5 px-2"
       style={{ paddingBottom: 'calc(14px + env(safe-area-inset-bottom, 0px))' }}
     >
       {TABS.map((t) => (

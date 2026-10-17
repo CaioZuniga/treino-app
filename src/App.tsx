@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { HashRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { LiveBar } from './components/LiveBar'
 import { TabBar } from './components/TabBar'
 import { Loading } from './components/ui'
 import { AmbienteEditor, Ambientes } from './screens/Ambientes'
@@ -67,7 +68,10 @@ function TabsLayout() {
           <Outlet />
         </div>
       </main>
-      <TabBar />
+      <div className="border-t border-line bg-bg/95 pt-2">
+        <LiveBar />
+        <TabBar />
+      </div>
     </div>
   )
 }

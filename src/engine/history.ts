@@ -1,4 +1,4 @@
-import type { WorkoutLog } from '../types'
+import type { LiveWorkout, WorkoutLog } from '../types'
 import type { SessionSets } from './progression'
 
 // Leituras do histórico de treinos: base da progressão (regra 7), do resumo e da aba Progresso.
@@ -66,4 +66,10 @@ export function localStamp(d: Date): string {
 export function formatVolume(kg: number): string {
   if (kg < 1000) return `${Math.round(kg)} kg`
   return `${String(Math.round(kg / 100) / 10).replace('.', ',')} t`
+}
+
+/** Tempo de treino efetivo, sem as pausas. */
+export function liveElapsedMs(live: Pick<LiveWorkout, 'startedAt' | 'pausedAt' | 'pausedMs'>, now = Date.now()): number {
+  const pausedNow = live.pausedAt ? now - live.pausedAt : 0
+  return Math.max(0, now - live.startedAt - (live.pausedMs ?? 0) - pausedNow)
 }

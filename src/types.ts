@@ -149,6 +149,9 @@ export interface LiveWorkout {
   /** Cópia da sessão no início: se o treino for regenerado no meio, as séries continuam batendo. */
   session: SessionPlan
   startedAt: number
+  /** Quando foi pausado (ausente = rodando) e quanto tempo já ficou pausado, para o relógio e a duração. */
+  pausedAt?: number
+  pausedMs?: number
   step: number
   mobilityDone: string[]
   /** Uma lista de séries por exercício de musculação, na ordem da sessão. */

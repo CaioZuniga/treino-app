@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { SetLog, WorkoutLog } from '../types'
-import { exerciseHistory, loadSeries, localStamp, personalRecords, trackedExercises, volumeKg } from './history'
+import { exerciseHistory, liveElapsedMs, loadSeries, localStamp, personalRecords, trackedExercises, volumeKg } from './history'
 
 const set = (exerciseId: string, loadKg: number, reps: number, done = true): SetLog => ({ exerciseId, setIndex: 0, loadKg, reps, done })
 const log = (date: string, sets: SetLog[]): WorkoutLog => ({
@@ -43,6 +43,13 @@ describe('histórico', () => {
 
   it('trackedExercises ordena pelos mais frequentes', () => {
     expect(trackedExercises(logs)).toEqual(['squat', 'curl'])
+  })
+
+  it('liveElapsedMs desconta as pausas, inclusive a que está em curso', () => {
+    // Começou em 0, ficou 5 min pausado antes e está pausado desde 20 min: em 30 min, contam 15 min.
+    const min = 60_000
+    expect(liveElapsedMs({ startedAt: 0, pausedMs: 5 * min, pausedAt: 20 * min }, 30 * min)).toBe(15 * min)
+    expect(liveElapsedMs({ startedAt: 0 }, 30 * min)).toBe(30 * min)
   })
 
   it('localStamp usa a hora local', () => {

@@ -2,7 +2,7 @@ import { EXERCISE_BY_ID, EXERCISES } from '../data/catalog'
 import { db } from '../db/db'
 import { generateProgram, suggestLoad } from '../engine'
 import { kcal, MET } from '../engine/cardio'
-import { exerciseHistory, localStamp } from '../engine/history'
+import { exerciseHistory, liveElapsedMs, localStamp } from '../engine/history'
 import { prescribe } from '../engine/prescription'
 import type { Environment, LiveWorkout, Profile, Program, SetLog, WorkoutLog } from '../types'
 
@@ -120,6 +120,17 @@ export async function updateLive(patch: Partial<Omit<LiveWorkout, 'id'>>): Promi
   await db.live.update('current', patch)
 }
 
+export async function pauseLive(): Promise<void> {
+  const live = await db.live.get('current')
+  if (live && !live.pausedAt) await db.live.update('current', { pausedAt: Date.now() })
+}
+
+export async function resumeLive(): Promise<void> {
+  const live = await db.live.get('current')
+  if (!live?.pausedAt) return
+  await db.live.update('current', { pausedAt: undefined, pausedMs: (live.pausedMs ?? 0) + (Date.now() - live.pausedAt) })
+}
+
 export async function discardLive(): Promise<void> {
   await db.live.delete('current')
 }
@@ -144,7 +155,7 @@ export async function finishLive(): Promise<number | undefined> {
       done: s.done,
     })),
   )
-  const durationMin = Math.max(1, Math.round((Date.now() - live.startedAt) / 60000))
+  const durationMin = Math.max(1, Math.round(liveElapsedMs(live) / 60000))
   const cardioMinutes = live.cardioDone && session.cardio ? session.cardio.minutes : 0
   const strengthMin = Math.max(0, durationMin - cardioMinutes)
   const log: WorkoutLog = {
