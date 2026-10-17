@@ -77,7 +77,8 @@ export async function toggleSuperset(sessionKey: string, index: number): Promise
       s.strength.map((x, i) => {
         if (i !== index && i !== index + 1) return x
         if (joined) {
-          const { group: _drop, ...rest } = x
+          const rest = { ...x }
+          delete rest.group
           return rest
         }
         return { ...x, group: `S${n}` }

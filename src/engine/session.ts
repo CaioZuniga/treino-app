@@ -86,7 +86,8 @@ export function cleanGroups(exercises: PlannedExercise[]): PlannedExercise[] {
   }
   return exercises.map((x) => {
     if (!x.group || (sizes.get(x.group) ?? 0) > 1) return x
-    const { group: _drop, ...rest } = x
+    const rest = { ...x }
+    delete rest.group
     return rest
   })
 }
