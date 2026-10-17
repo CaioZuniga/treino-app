@@ -35,24 +35,44 @@ Definido em `src/types.ts`.
 
 ## Motor de regras
 
-1. **Modelo da divisão**: cada dia da divisão escolhida tem "vagas" (ex.: Inferiores = composto de quadríceps, dobradiça de quadril, unilateral, isolador de quadríceps, glúteo).
-2. **Preenchimento**: filtra por equipamento do ambiente, nível e lesões; tira o que a pessoa evita; ordena por favoritos, prioridade de compostos e variação entre semanas.
-3. **Volume e intensidade**:
-   - Séries por músculo na semana: iniciante 8–10, intermediário 12–16, avançado 16–20.
-   - Hipertrofia: 8–12 repetições, 90 s de descanso.
-   - Força: 3–6 repetições, 3 min.
-   - Emagrecimento: 10–15 repetições, 60 s.
-   - Condicionamento: circuito.
-4. **Tempo**: estima a duração (`src/engine/session.ts`) e corta acessórios até caber no tempo informado.
-5. **Aeróbico**:
-   - Emagrecimento: 2× HIIT + 2× LISS por semana.
-   - Hipertrofia: LISS leve.
-   - Aparelho vem do ambiente; sem aparelho, corda ou peso corporal.
-   - Zonas de FC pela fórmula de Tanaka (FCmáx = 208 − 0,7 × idade).
-6. **Mobilidade**: 5–8 min pelas articulações do dia e pelas lesões.
-7. **Progressão dupla**: todas as séries no topo da faixa → +2,5 kg (superiores) / +5 kg (inferiores). Duas falhas seguidas → −10% (deload).
-8. **Trocar exercício**: mesma vaga e mesmo padrão de movimento, dentro do ambiente.
-9. **Calorias**: MET × peso × tempo.
+Código em `src/engine/`, testes em `src/engine/engine.test.ts` (todas as 180 combinações de divisão × objetivo × nível × ambiente-base).
+
+1. **Modelo da divisão** (`splits.ts`): cada dia tem vagas em ordem, com prioridade principal, secundária ou acessório. Se nada cabe no ambiente, tenta substitutos do mesmo grupo e, por último, qualquer exercício da mesma região ou de core. O foco muscular escolhido vira uma vaga secundária extra nos dias da região.
+2. **Preenchimento** (`select.ts`):
+   - Filtra por ambiente, nível (iniciante só recebe exercícios de iniciante), lesões e exercícios evitados.
+   - Pontua: favoritos +4; clássicos com carga +1,5; composto em vaga principal +2; isolado em acessório +1.
+   - Na academia, peso do corpo e elástico perdem 2 pontos. Exercício já usado em outro dia perde 3.
+   - Uma variação estável pela semente fecha a ordenação.
+3. **Volume e intensidade** (`prescription.ts`):
+
+   | Séries | Principal | Secundário | Acessório |
+   |---|---|---|---|
+   | Iniciante | 3 | 3 | 2 |
+   | Intermediário | 4 | 3 | 3 |
+   | Avançado | 4 | 4 | 3 |
+
+   | Reps / descanso | Principal | Secundário | Acessório |
+   |---|---|---|---|
+   | Hipertrofia | 6–10 / 120 s | 8–12 / 90 s | 10–15 / 60 s |
+   | Força | 3–6 / 180 s | 6–8 / 120 s | 8–12 / 90 s |
+   | Emagrecimento | 8–12 / 75 s | 10–15 / 60 s | 12–15 / 45 s |
+   | Condicionamento | 10–12 / 60 s | 12–15 / 45 s | 15–20 / 30 s |
+
+   Core usa 10–15 repetições com 45 s; prancha e sustentações são em segundos.
+4. **Tempo** (`session.ts`, `generate.ts`): estima a sessão com cerca de 3 s por repetição, os descansos e 1 min de troca entre exercícios. Para caber no tempo informado, corta nesta ordem: acessórios do fim, séries extras dos não principais (até 2), minutos de aeróbico (até 10) e secundários do fim. Nunca fica com menos de 3 exercícios.
+5. **Aeróbico** (`cardio.ts`):
+   - Emagrecimento: HIIT e LISS alternados em toda sessão.
+   - Condicionamento: HIIT em toda sessão.
+   - Hipertrofia (15 min) e força (10 min): 2 LISS, fora dos dias de perna.
+   - HIIT: 30 s forte / 60 s leve (iniciante 20/70), a 85–90% da FC máxima. LISS: zona 2, a 60–70%. FC máxima pela fórmula de Tanaka (208 − 0,7 × idade).
+   - Sem aparelho: circuito de condicionamento (40 s de esforço / 20 s de pausa).
+6. **Mobilidade** (`mobility.ts`): até 4 exercícios. Primeiro as articulações das lesões, depois as mais usadas no dia, preferindo movimentos dinâmicos.
+7. **Progressão dupla** (`progression.ts`):
+   - Todas as séries no topo da faixa → +5 kg em agachamento, dobradiça e glúteo compostos; +2,5 kg nos demais.
+   - Abaixo do mínimo em 2 sessões seguidas → −10% (deload).
+   - Arredonda para 0,5 kg.
+8. **Trocar exercício** (`alternatives`): mesmo padrão, dentro do ambiente, seguro, fora da sessão, ordenado pela mesma pontuação.
+9. **Calorias**: MET × peso × tempo (musculação 5, mobilidade 2,5, HIIT e circuito 8, LISS 4,5).
 
 ## Telas
 
@@ -64,7 +84,7 @@ Onboarding, Hoje, Semana, Treino, Detalhe do exercício, Ao vivo, Resumo pós-tr
 |---|---|---|---|
 | 0 | Setup | Repo, Vite + PWA, tokens visuais, navegação, banco local, deploy | Feito |
 | 1 | Curadoria dos dados | 293 exercícios traduzidos, ligados ao checklist de equipamentos, com tags de lesão (`data/curadoria.txt`, `npm run build:exercises`) | Feito |
-| 2 | Motor | Regras 1–9 com testes | |
+| 2 | Motor | Regras 1–9 com testes (`src/engine`) | Feito |
 | 3 | Telas base | Onboarding, ambientes, perfil, hoje, semana, treino, detalhe | |
 | 4 | Execução | Ao vivo, registro, resumo, progressão, gráficos | |
 | 5 | Publicação | Cache offline das imagens, ícones PNG (iOS), backup, polimento | |

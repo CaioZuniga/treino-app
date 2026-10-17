@@ -65,10 +65,17 @@ export interface Environment {
   equipment: string[]
 }
 
+/** Peso da vaga na sessão: define séries, faixa de repetições e o que sai primeiro quando falta tempo. */
+export type Priority = 'principal' | 'secundario' | 'acessorio'
+
 export interface PlannedExercise {
   exerciseId: string
-  slot: string
+  /** Vaga que o exercício ocupa (pode diferir do padrão do exercício quando o motor usou um substituto). */
+  slot: Pattern
+  priority: Priority
   sets: number
+  /** Em "seg", repsMin/repsMax são segundos de sustentação. */
+  unit: 'reps' | 'seg'
   repsMin: number
   repsMax: number
   restSec: number
@@ -76,18 +83,24 @@ export interface PlannedExercise {
 }
 
 export interface CardioPlan {
-  kind: 'hiit' | 'liss'
-  equipment: string
+  kind: 'hiit' | 'liss' | 'circuito'
+  exerciseIds: string[]
   minutes: number
   description: string
+  /** Faixa de frequência cardíaca alvo (bpm) do trecho forte ou do ritmo constante. */
+  hrMin: number
+  hrMax: number
 }
 
 export interface SessionPlan {
   key: string
   title: string
+  subtitle: string
   mobility: PlannedExercise[]
   strength: PlannedExercise[]
   cardio?: CardioPlan
+  estimatedMinutes: number
+  kcal: number
 }
 
 export interface Program {
@@ -95,6 +108,8 @@ export interface Program {
   createdAt: string
   split: Split
   environmentId: number
+  /** Semente da variação: o mesmo perfil e ambiente com a mesma semente gera o mesmo treino. */
+  seed: number
   sessions: SessionPlan[]
 }
 
