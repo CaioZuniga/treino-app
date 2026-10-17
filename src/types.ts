@@ -123,11 +123,35 @@ export interface SetLog {
 
 export interface WorkoutLog {
   id?: number
+  /** Data e hora local de início, AAAA-MM-DDTHH:MM. */
   date: string
   programId: number
   sessionKey: string
+  sessionTitle: string
   environmentId: number
   sets: SetLog[]
+  cardioMinutes: number
   durationMin: number
   kcal: number
+}
+
+export interface LiveSet {
+  loadKg: string
+  reps: string
+  done: boolean
+}
+
+/** Treino em andamento: fica salvo para não se perder se o app fechar no meio. */
+export interface LiveWorkout {
+  id: 'current'
+  programId: number
+  sessionKey: string
+  /** Cópia da sessão no início: se o treino for regenerado no meio, as séries continuam batendo. */
+  session: SessionPlan
+  startedAt: number
+  step: number
+  mobilityDone: string[]
+  /** Uma lista de séries por exercício de musculação, na ordem da sessão. */
+  sets: LiveSet[][]
+  cardioDone: boolean
 }

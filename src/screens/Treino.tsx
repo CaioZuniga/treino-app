@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { ExerciseRow } from '../components/ExerciseRow'
 import { Dot, Loading, ScreenHeader } from '../components/ui'
 import { EXERCISES, exerciseName } from '../data/catalog'
@@ -7,7 +7,7 @@ import { GOAL_LABELS } from '../data/labels'
 import { alternatives, SPLIT_LABELS } from '../engine'
 import { blockMinutes } from '../engine/session'
 import { swapExercise } from '../state/actions'
-import { useEnvironment, useProfile, useProgram } from '../state/hooks'
+import { useEnvironment, useLive, useProfile, useProgram } from '../state/hooks'
 
 const CARDIO_TITLE = { hiit: 'HIIT', liss: 'Aeróbico leve', circuito: 'Circuito' } as const
 
@@ -16,6 +16,7 @@ export function Treino() {
   const profile = useProfile()
   const program = useProgram()
   const env = useEnvironment(profile?.activeEnvironmentId)
+  const live = useLive()
   const [swapIndex, setSwapIndex] = useState<number | null>(null)
   if (!profile || !program || env === undefined) return <Loading />
 
@@ -56,7 +57,9 @@ export function Treino() {
         </Block>
       )}
 
-      <p className="text-center text-xs text-dim">O modo treino ao vivo, com timer e registro de carga, chega na próxima fase.</p>
+      <Link to={`/aovivo/${session.key}`} className="btn btn-lime">
+        {live?.sessionKey === session.key ? 'Continuar treino' : 'Começar treino'}
+      </Link>
 
       {swapping && (
         <div className="fixed inset-0 z-20 flex items-end justify-center bg-black/60" onClick={() => setSwapIndex(null)}>

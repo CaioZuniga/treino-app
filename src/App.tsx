@@ -1,13 +1,15 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { HashRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
-import { Placeholder } from './components/Placeholder'
 import { TabBar } from './components/TabBar'
 import { Loading } from './components/ui'
 import { AmbienteEditor, Ambientes } from './screens/Ambientes'
+import { AoVivo } from './screens/AoVivo'
 import { Exercicio } from './screens/Exercicio'
 import { Hoje } from './screens/Hoje'
 import { Onboarding } from './screens/Onboarding'
 import { Perfil } from './screens/Perfil'
+import { Progresso } from './screens/Progresso'
+import { Resumo } from './screens/Resumo'
 import { Semana } from './screens/Semana'
 import { Treino } from './screens/Treino'
 import { useProfile } from './state/hooks'
@@ -18,6 +20,7 @@ export default function App() {
     <HashRouter>
       <Routes>
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/aovivo/:key" element={<RequireProfile><AoVivo /></RequireProfile>} />
         <Route element={<TabsLayout />}>
           <Route path="/" element={<Hoje />} />
           <Route path="/semana" element={<Semana />} />
@@ -26,6 +29,7 @@ export default function App() {
           <Route path="/ambientes" element={<Ambientes />} />
           <Route path="/ambientes/:id" element={<AmbienteEditor />} />
           <Route path="/progresso" element={<Progresso />} />
+          <Route path="/resumo/:id" element={<Resumo />} />
           <Route path="/perfil" element={<Perfil />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
@@ -62,13 +66,9 @@ function TabsLayout() {
   )
 }
 
-function Progresso() {
-  return (
-    <Placeholder
-      eyebrow="Evolução"
-      title="Progresso"
-      phase="Fase 4"
-      items={['Carga máxima por exercício', 'Volume e tempo de aeróbico', 'Recordes recentes']}
-    />
-  )
+function RequireProfile({ children }: { children: ReactNode }) {
+  const profile = useProfile()
+  if (profile === undefined) return <Loading />
+  if (profile === null) return <Navigate to="/onboarding" replace />
+  return children
 }

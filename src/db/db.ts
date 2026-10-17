@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
-import type { Environment, Profile, Program, WorkoutLog } from '../types'
+import type { Environment, LiveWorkout, Profile, Program, WorkoutLog } from '../types'
 
 // Banco local (IndexedDB). Os dados ficam só neste aparelho; o backup exporta tudo para JSON.
 export const db = new Dexie('treino-app') as Dexie & {
@@ -7,6 +7,7 @@ export const db = new Dexie('treino-app') as Dexie & {
   environments: EntityTable<Environment, 'id'>
   programs: EntityTable<Program, 'id'>
   logs: EntityTable<WorkoutLog, 'id'>
+  live: EntityTable<LiveWorkout, 'id'>
 }
 
 db.version(1).stores({
@@ -15,6 +16,8 @@ db.version(1).stores({
   programs: '++id, createdAt',
   logs: '++id, date, programId',
 })
+
+db.version(2).stores({ live: 'id' })
 
 export interface Backup {
   app: 'treino-app'

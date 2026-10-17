@@ -1,8 +1,10 @@
-import { EXERCISES } from '../data/catalog'
+import { EXERCISE_BY_ID, EXERCISES } from '../data/catalog'
 import { db } from '../db/db'
-import { generateProgram } from '../engine'
+import { generateProgram, suggestLoad } from '../engine'
+import { kcal, MET } from '../engine/cardio'
+import { exerciseHistory, localStamp } from '../engine/history'
 import { prescribe } from '../engine/prescription'
-import type { Environment, Profile, Program } from '../types'
+import type { Environment, LiveWorkout, Profile, Program, SetLog, WorkoutLog } from '../types'
 
 // Tudo que grava no banco local passa por aqui. As telas leem pelos hooks (state/hooks.ts).
 
@@ -73,6 +75,97 @@ export async function deleteEnvironment(id: number): Promise<void> {
   const profile = await db.profile.get('me')
   if (profile?.activeEnvironmentId === id) throw new Error('Troque o ambiente ativo antes de excluir este.')
   await db.environments.delete(id)
+}
+
+// --- Treino ao vivo -------------------------------------------------------------------------------
+
+/** Carga sugerida pela progressão dupla, a partir do histórico registrado. */
+export async function suggestionsFor(sessionKey: string) {
+  const [program, logs] = await Promise.all([latestProgram(), db.logs.toArray()])
+  const session = program?.sessions.find((s) => s.key === sessionKey)
+  if (!session) return []
+  return session.strength.map((plan) => {
+    const ex = EXERCISE_BY_ID.get(plan.exerciseId)
+    return ex ? suggestLoad(plan, ex, exerciseHistory(logs, plan.exerciseId)) : { reason: 'sem_historico' as const }
+  })
+}
+
+export async function startLive(sessionKey: string): Promise<void> {
+  const existing = await db.live.get('current')
+  if (existing?.sessionKey === sessionKey) return
+  const program = await latestProgram()
+  const session = program?.sessions.find((s) => s.key === sessionKey)
+  if (!program?.id || !session) return
+  const suggestions = await suggestionsFor(sessionKey)
+  await db.live.put({
+    id: 'current',
+    programId: program.id,
+    sessionKey,
+    session,
+    startedAt: Date.now(),
+    step: 0,
+    mobilityDone: [],
+    sets: session.strength.map((plan, i) =>
+      Array.from({ length: plan.sets }, () => ({
+        loadKg: suggestions[i]?.loadKg ? String(suggestions[i].loadKg).replace('.', ',') : '',
+        reps: '',
+        done: false,
+      })),
+    ),
+    cardioDone: false,
+  })
+}
+
+export async function updateLive(patch: Partial<Omit<LiveWorkout, 'id'>>): Promise<void> {
+  await db.live.update('current', patch)
+}
+
+export async function discardLive(): Promise<void> {
+  await db.live.delete('current')
+}
+
+const toNumber = (s: string) => {
+  const n = Number(s.replace(',', '.'))
+  return Number.isFinite(n) ? n : 0
+}
+
+/** Grava o treino no histórico e devolve o id do registro. */
+export async function finishLive(): Promise<number | undefined> {
+  const [live, profile] = await Promise.all([db.live.get('current'), db.profile.get('me')])
+  if (!live || !profile) return undefined
+  const session = live.session
+
+  const sets: SetLog[] = session.strength.flatMap((plan, i) =>
+    (live.sets[i] ?? []).map((s, setIndex) => ({
+      exerciseId: plan.exerciseId,
+      setIndex,
+      loadKg: toNumber(s.loadKg),
+      reps: Math.round(toNumber(s.reps || String(plan.repsMax))),
+      done: s.done,
+    })),
+  )
+  const durationMin = Math.max(1, Math.round((Date.now() - live.startedAt) / 60000))
+  const cardioMinutes = live.cardioDone && session.cardio ? session.cardio.minutes : 0
+  const strengthMin = Math.max(0, durationMin - cardioMinutes)
+  const log: WorkoutLog = {
+    date: localStamp(new Date(live.startedAt)),
+    programId: live.programId,
+    sessionKey: session.key,
+    sessionTitle: session.title,
+    environmentId: profile.activeEnvironmentId ?? 0,
+    sets,
+    cardioMinutes,
+    durationMin,
+    kcal:
+      kcal(MET.musculacao, profile.weightKg, strengthMin) +
+      (cardioMinutes && session.cardio ? kcal(MET[session.cardio.kind], profile.weightKg, cardioMinutes) : 0),
+  }
+  const id = await db.transaction('rw', db.logs, db.live, async () => {
+    const newId = await db.logs.add(log)
+    await db.live.delete('current')
+    return newId
+  })
+  return id as number
 }
 
 /** Primeiras duas letras do nome, para o ícone do ambiente. */

@@ -23,3 +23,11 @@ export function useProgram() {
 export function useLogs() {
   return useLiveQuery(() => db.logs.orderBy('date').toArray())
 }
+
+export function useLive() {
+  return useLiveQuery(async () => (await db.live.get('current')) ?? null)
+}
+
+export function useLog(id: number) {
+  return useLiveQuery(async () => (await db.logs.get(id)) ?? null, [id])
+}

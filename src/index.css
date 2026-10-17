@@ -14,6 +14,8 @@
   --color-lime-ink: #1a2400;
   --color-cardio: #ff7a3d;
   --color-mob: #9b8cff;
+  --color-lime-deep: #1f2a07;
+  --color-lime-edge: #3a4a12;
 
   --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
   --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -59,6 +61,20 @@ body {
   }
   .btn-ghost {
     @apply border border-line bg-card2 text-fg;
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
 

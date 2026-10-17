@@ -4,7 +4,7 @@ import { dayKey, WeekStrip } from '../components/WeekStrip'
 import { SPLIT_LABELS } from '../engine'
 import { blockMinutes } from '../engine/session'
 import { initials, setActiveEnvironment } from '../state/actions'
-import { useEnvironments, useLogs, useProfile, useProgram } from '../state/hooks'
+import { useEnvironments, useLive, useLogs, useProfile, useProgram } from '../state/hooks'
 
 const CARDIO_SHORT = { hiit: 'HIIT', liss: 'LISS', circuito: 'circuito' } as const
 
@@ -13,10 +13,11 @@ export function Hoje() {
   const program = useProgram()
   const environments = useEnvironments()
   const logs = useLogs()
-  if (!profile || !program || !environments || !logs) return <Loading />
+  const live = useLive()
+  if (!profile || !program || !environments || !logs || live === undefined) return <Loading />
 
   // Próximo treino: segue a ordem da divisão a partir de quantos treinos já foram feitos.
-  const session = program.sessions[logs.length % program.sessions.length]
+  const session = live ? live.session : program.sessions[logs.length % program.sessions.length]
   const env = environments.find((e) => e.id === profile.activeEnvironmentId)
   const today = new Date()
   const monday = new Date(today)
@@ -38,7 +39,7 @@ export function Hoje() {
 
       <WeekStrip logs={logs} today={today} />
 
-      <div className="card relative flex flex-col gap-3.5 overflow-hidden border-[#3a4a12] bg-[linear-gradient(140deg,#1f2a07_0%,#15181d_62%)]">
+      <div className="card relative flex flex-col gap-3.5 overflow-hidden border-lime-edge bg-[linear-gradient(140deg,var(--color-lime-deep)_0%,var(--color-card)_62%)]">
         <div
           className="pointer-events-none absolute -top-16 -right-16 h-52 w-52 rounded-full"
           style={{ background: 'radial-gradient(circle, rgba(200,255,61,.28), transparent 70%)' }}
@@ -69,9 +70,14 @@ export function Hoje() {
             </span>
           )}
         </div>
-        <Link to={`/treino/${session.key}`} className="btn btn-lime relative">
-          Ver treino de hoje
-        </Link>
+        <div className="relative flex gap-2">
+          <Link to={`/aovivo/${session.key}`} className="btn btn-lime flex-1">
+            {live ? 'Continuar treino' : 'Começar treino'}
+          </Link>
+          <Link to={`/treino/${session.key}`} className="btn btn-ghost">
+            Ver
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-2.5">
