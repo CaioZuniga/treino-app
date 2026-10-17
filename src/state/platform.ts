@@ -28,6 +28,7 @@ export function initPlatform() {
   })
   window.addEventListener('appinstalled', () => {
     installEvent = null
+    justInstalled = true
     notify()
   })
   // Pede para o navegador não apagar os dados do app quando faltar espaço (o iPhone apaga dados de sites
@@ -35,13 +36,50 @@ export function initPlatform() {
   navigator.storage?.persist?.().catch(() => {})
 }
 
-export type InstallState = 'instalado' | 'android' | 'ios' | 'indisponivel'
+export const isAndroid = () => /android/i.test(navigator.userAgent)
+
+/** No iPhone, só o Safari mostra "Adicionar à Tela de Início" de forma confiável. */
+export const isIOSSafari = () => isIOS() && !/crios|fxios|edgios|opios|gsa\//i.test(navigator.userAgent)
+
+let justInstalled = false
+
+/**
+ * 'instalado': aberto pelo ícone. 'recem-instalado': o Android acabou de instalar e o app está no navegador.
+ * 'android': temos o botão nativo de instalar. 'android-menu': Android sem o convite (instalar pelo menu ⋮).
+ * 'ios' / 'ios-outro-navegador': passo a passo no Safari, ou pedir para abrir no Safari.
+ */
+export type InstallState = 'instalado' | 'recem-instalado' | 'android' | 'android-menu' | 'ios' | 'ios-outro-navegador' | 'indisponivel'
 
 function installState(): InstallState {
   if (isStandalone()) return 'instalado'
+  if (justInstalled) return 'recem-instalado'
   if (installEvent) return 'android'
-  if (isIOS()) return 'ios'
+  if (isIOS()) return isIOSSafari() ? 'ios' : 'ios-outro-navegador'
+  if (isAndroid()) return 'android-menu'
   return 'indisponivel'
+}
+
+const SKIP_KEY = 'treino:instalar-pulado'
+
+/**
+ * Celular abrindo pelo navegador: mostra a tela de instalação antes do cadastro. No iPhone isso evita
+ * cadastrar duas vezes, porque o Safari e o app instalado guardam os dados separados.
+ */
+export function shouldOfferInstallFirst(): boolean {
+  if (isStandalone() || !(isIOS() || isAndroid())) return false
+  try {
+    return localStorage.getItem(SKIP_KEY) !== '1'
+  } catch {
+    return true
+  }
+}
+
+export function skipInstall() {
+  try {
+    localStorage.setItem(SKIP_KEY, '1')
+  } catch {
+    // Sem armazenamento: a tela volta a aparecer na próxima visita.
+  }
 }
 
 export function useInstallState(): InstallState {

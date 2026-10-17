@@ -8,6 +8,8 @@ O plano completo e as regras do motor estão em [PLANO.md](PLANO.md).
 
 ## Instalar no celular
 
+Ao abrir o link no navegador do celular, a primeira tela é **Instale o Treino**, antes do cadastro. Instale, abra pelo ícone e faça o cadastro já no app. No iPhone isso é obrigatório para não cadastrar duas vezes: o Safari e o app instalado guardam os dados separados.
+
 **iPhone (Safari)**
 1. Abra o endereço acima no Safari.
 2. Toque em Compartilhar (quadrado com seta para cima).
@@ -15,7 +17,7 @@ O plano completo e as regras do motor estão em [PLANO.md](PLANO.md).
 
 **Android (Chrome)**
 1. Abra o endereço acima no Chrome.
-2. Toque em **Instalar app** no cartão da tela Hoje, ou no menu ⋮ → **Instalar app**.
+2. Toque em **Instalar app** na tela de instalação, ou no menu ⋮ → **Instalar app**.
 
 Depois de instalado, o app abre em tela cheia e funciona offline. Em Perfil → App no celular, **Baixar fotos do treino** guarda as fotos dos exercícios para ver sem internet.
 

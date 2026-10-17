@@ -6,6 +6,7 @@ import { AmbienteEditor, Ambientes } from './screens/Ambientes'
 import { AoVivo } from './screens/AoVivo'
 import { Exercicio } from './screens/Exercicio'
 import { Hoje } from './screens/Hoje'
+import { Instalar } from './screens/Instalar'
 import { Onboarding } from './screens/Onboarding'
 import { Perfil } from './screens/Perfil'
 import { Progresso } from './screens/Progresso'
@@ -13,12 +14,14 @@ import { Resumo } from './screens/Resumo'
 import { Semana } from './screens/Semana'
 import { Treino } from './screens/Treino'
 import { useProfile } from './state/hooks'
+import { shouldOfferInstallFirst } from './state/platform'
 
 // HashRouter: o GitHub Pages não reescreve rotas, então as URLs ficam como /treino-app/#/ambientes.
 export default function App() {
   return (
     <HashRouter>
       <Routes>
+        <Route path="/instalar" element={<Instalar />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/aovivo/:key" element={<RequireProfile><AoVivo /></RequireProfile>} />
         <Route element={<TabsLayout />}>
@@ -47,7 +50,8 @@ function TabsLayout() {
     mainRef.current?.scrollTo(0, 0)
   }, [pathname])
   if (profile === undefined) return <Loading />
-  if (profile === null) return <Navigate to="/onboarding" replace />
+  // Primeira visita: no navegador do celular, instala antes do cadastro.
+  if (profile === null) return <Navigate to={shouldOfferInstallFirst() ? '/instalar' : '/onboarding'} replace />
   return (
     <div className="mx-auto flex h-full max-w-[480px] flex-col bg-bg">
       <main
