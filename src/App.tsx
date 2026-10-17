@@ -1,30 +1,74 @@
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { HashRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { Placeholder } from './components/Placeholder'
 import { TabBar } from './components/TabBar'
-import { Ambientes, Hoje, Perfil, Progresso, Semana } from './screens/screens'
+import { Loading } from './components/ui'
+import { AmbienteEditor, Ambientes } from './screens/Ambientes'
+import { Exercicio } from './screens/Exercicio'
+import { Hoje } from './screens/Hoje'
+import { Onboarding } from './screens/Onboarding'
+import { Perfil } from './screens/Perfil'
+import { Semana } from './screens/Semana'
+import { Treino } from './screens/Treino'
+import { useProfile } from './state/hooks'
 
 // HashRouter: o GitHub Pages não reescreve rotas, então as URLs ficam como /treino-app/#/ambientes.
 export default function App() {
   return (
     <HashRouter>
-      <div className="mx-auto flex h-full max-w-[480px] flex-col bg-bg">
-        <main
-          className="flex-1 overflow-y-auto py-6"
-          style={{
-            paddingLeft: 'max(20px, env(safe-area-inset-left, 0px))',
-            paddingRight: 'max(20px, env(safe-area-inset-right, 0px))',
-            paddingTop: 'calc(24px + env(safe-area-inset-top, 0px))',
-          }}
-        >
-          <Routes>
-            <Route path="/" element={<Hoje />} />
-            <Route path="/semana" element={<Semana />} />
-            <Route path="/ambientes" element={<Ambientes />} />
-            <Route path="/progresso" element={<Progresso />} />
-            <Route path="/perfil" element={<Perfil />} />
-          </Routes>
-        </main>
-        <TabBar />
-      </div>
+      <Routes>
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route element={<TabsLayout />}>
+          <Route path="/" element={<Hoje />} />
+          <Route path="/semana" element={<Semana />} />
+          <Route path="/treino/:key" element={<Treino />} />
+          <Route path="/exercicio/:id" element={<Exercicio />} />
+          <Route path="/ambientes" element={<Ambientes />} />
+          <Route path="/ambientes/:id" element={<AmbienteEditor />} />
+          <Route path="/progresso" element={<Progresso />} />
+          <Route path="/perfil" element={<Perfil />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
     </HashRouter>
+  )
+}
+
+function TabsLayout() {
+  const profile = useProfile()
+  const { pathname } = useLocation()
+  const mainRef = useRef<HTMLElement>(null)
+  // A rolagem fica no <main>; cada tela nova começa do topo.
+  useEffect(() => {
+    mainRef.current?.scrollTo(0, 0)
+  }, [pathname])
+  if (profile === undefined) return <Loading />
+  if (profile === null) return <Navigate to="/onboarding" replace />
+  return (
+    <div className="mx-auto flex h-full max-w-[480px] flex-col bg-bg">
+      <main
+        ref={mainRef}
+        className="flex-1 overflow-y-auto py-6"
+        style={{
+          paddingLeft: 'max(20px, env(safe-area-inset-left, 0px))',
+          paddingRight: 'max(20px, env(safe-area-inset-right, 0px))',
+          paddingTop: 'calc(24px + env(safe-area-inset-top, 0px))',
+        }}
+      >
+        <Outlet />
+      </main>
+      <TabBar />
+    </div>
+  )
+}
+
+function Progresso() {
+  return (
+    <Placeholder
+      eyebrow="Evolução"
+      title="Progresso"
+      phase="Fase 4"
+      items={['Carga máxima por exercício', 'Volume e tempo de aeróbico', 'Recordes recentes']}
+    />
   )
 }

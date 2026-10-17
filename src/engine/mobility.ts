@@ -30,7 +30,8 @@ const DYNAMIC = new Set([
   'Pelvic_Tilt_Into_Bridge', 'Wrist_Circles',
 ])
 
-const MAX_ITEMS = 4
+const MIN_ITEMS = 4
+const MAX_ITEMS = 5
 
 /** Articulações em ordem de prioridade: primeiro as lesões, depois as mais usadas no dia. */
 export function jointsForDay(patterns: readonly Pattern[], injuries: readonly Joint[]): Joint[] {
@@ -42,8 +43,8 @@ export function jointsForDay(patterns: readonly Pattern[], injuries: readonly Jo
 
 function prescribeMobility(e: Exercise): PlannedExercise {
   const base = { exerciseId: e.id, slot: 'mobilidade' as const, priority: 'acessorio' as const, restSec: 0 }
-  if (DYNAMIC.has(e.id)) return { ...base, sets: 1, unit: 'reps', repsMin: 8, repsMax: 10 }
-  if (e.id.endsWith('-SMR')) return { ...base, sets: 1, unit: 'seg', repsMin: 45, repsMax: 60 }
+  if (DYNAMIC.has(e.id)) return { ...base, sets: 2, unit: 'reps', repsMin: 8, repsMax: 10 }
+  if (e.id.endsWith('-SMR')) return { ...base, sets: 2, unit: 'seg', repsMin: 45, repsMax: 60 }
   return { ...base, sets: 2, unit: 'seg', repsMin: 20, repsMax: 30 }
 }
 
@@ -68,5 +69,11 @@ export function planMobility(patterns: readonly Pattern[], injuries: readonly Jo
     chosen.push(best)
     best.joints.forEach((j) => covered.add(j))
   }
+  // Poucas articulações no dia: completa até o mínimo com dinâmicos que tocam alguma delas.
+  const extra = pool
+    .filter((e) => !chosen.includes(e) && DYNAMIC.has(e.id) && e.joints.some((j) => joints.includes(j)))
+    .sort((a, b) => hash01(`${b.id}:${ctx.seed}`) - hash01(`${a.id}:${ctx.seed}`))
+  while (chosen.length < MIN_ITEMS && extra.length) chosen.push(extra.shift()!)
+
   return chosen.map(prescribeMobility)
 }

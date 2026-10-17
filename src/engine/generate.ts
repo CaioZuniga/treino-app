@@ -19,6 +19,7 @@ export interface GenerateInput {
 /** Menos que isso não é treino: o ajuste de tempo nunca corta abaixo disso. */
 const MIN_STRENGTH_EXERCISES = 3
 const MIN_CARDIO_MINUTES = 10
+const MIN_MOBILITY_ITEMS = 3
 
 /** A vaga de foco entra como secundária, logo depois das secundárias, para não ser a primeira a sair por tempo. */
 function withFocus(day: DayTemplate, focus: readonly string[]): Slot[] {
@@ -58,7 +59,8 @@ function sessionMinutes(mobility: PlannedExercise[], strength: PlannedExercise[]
 
 /**
  * Regra 4: corta até caber no tempo informado, nesta ordem —
- * acessórios do fim, séries extras dos não principais, minutos de aeróbico e, por último, secundários do fim.
+ * acessórios do fim, séries extras dos não principais, minutos de aeróbico, aquecimento (até 3 movimentos)
+ * e, por último, secundários do fim.
  */
 function fitToTime(
   mobility: PlannedExercise[],
@@ -66,10 +68,11 @@ function fitToTime(
   cardio: CardioPlan | undefined,
   budget: number,
   replanCardio: (minutes: number) => CardioPlan,
-): { strength: PlannedExercise[]; cardio?: CardioPlan } {
+): { mobility: PlannedExercise[]; strength: PlannedExercise[]; cardio?: CardioPlan } {
+  let m = [...mobility]
   let s = [...strength]
   let c = cardio
-  const over = () => sessionMinutes(mobility, s, c) > budget
+  const over = () => sessionMinutes(m, s, c) > budget
 
   const dropLast = (priority: PlannedExercise['priority']) => {
     while (over() && s.length > MIN_STRENGTH_EXERCISES) {
@@ -82,11 +85,12 @@ function fitToTime(
   dropLast('acessorio')
   if (over()) s = s.map((x) => (x.priority !== 'principal' && x.sets > 2 ? { ...x, sets: 2 } : x))
   if (over() && c && c.minutes > MIN_CARDIO_MINUTES) {
-    const excess = sessionMinutes(mobility, s, c) - budget
+    const excess = sessionMinutes(m, s, c) - budget
     c = replanCardio(Math.max(MIN_CARDIO_MINUTES, c.minutes - excess))
   }
+  while (over() && m.length > MIN_MOBILITY_ITEMS) m = m.slice(0, -1)
   dropLast('secundario')
-  return { strength: s, cardio: c }
+  return { mobility: m, strength: s, cardio: c }
 }
 
 export function generateProgram(input: GenerateInput): Program {
@@ -108,16 +112,16 @@ export function generateProgram(input: GenerateInput): Program {
     const fitted = fitToTime(mobility, strength, cardio, profile.minutesPerSession, replan)
 
     const strengthMin = blockMinutes(fitted.strength)
-    const mobilityMin = blockMinutes(mobility, 15)
+    const mobilityMin = blockMinutes(fitted.mobility, 15)
     const cardioMet = fitted.cardio ? MET[fitted.cardio.kind] : 0
     return {
       key: day.key,
       title: day.title,
       subtitle: day.subtitle,
-      mobility,
+      mobility: fitted.mobility,
       strength: fitted.strength,
       cardio: fitted.cardio,
-      estimatedMinutes: sessionMinutes(mobility, fitted.strength, fitted.cardio),
+      estimatedMinutes: sessionMinutes(fitted.mobility, fitted.strength, fitted.cardio),
       kcal:
         kcal(MET.mobilidade, profile.weightKg, mobilityMin) +
         kcal(MET.musculacao, profile.weightKg, strengthMin) +

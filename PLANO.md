@@ -59,14 +59,14 @@ Código em `src/engine/`, testes em `src/engine/engine.test.ts` (todas as 180 co
    | Condicionamento | 10–12 / 60 s | 12–15 / 45 s | 15–20 / 30 s |
 
    Core usa 10–15 repetições com 45 s; prancha e sustentações são em segundos.
-4. **Tempo** (`session.ts`, `generate.ts`): estima a sessão com cerca de 3 s por repetição, os descansos e 1 min de troca entre exercícios. Para caber no tempo informado, corta nesta ordem: acessórios do fim, séries extras dos não principais (até 2), minutos de aeróbico (até 10) e secundários do fim. Nunca fica com menos de 3 exercícios.
+4. **Tempo** (`session.ts`, `generate.ts`): estima a sessão com cerca de 3 s por repetição, os descansos e 1 min de troca entre exercícios. Para caber no tempo informado, corta nesta ordem: acessórios do fim, séries extras dos não principais (até 2), minutos de aeróbico (até 10), aquecimento (até 3 movimentos) e secundários do fim. Nunca fica com menos de 3 exercícios.
 5. **Aeróbico** (`cardio.ts`):
    - Emagrecimento: HIIT e LISS alternados em toda sessão.
    - Condicionamento: HIIT em toda sessão.
    - Hipertrofia (15 min) e força (10 min): 2 LISS, fora dos dias de perna.
    - HIIT: 30 s forte / 60 s leve (iniciante 20/70), a 85–90% da FC máxima. LISS: zona 2, a 60–70%. FC máxima pela fórmula de Tanaka (208 − 0,7 × idade).
    - Sem aparelho: circuito de condicionamento (40 s de esforço / 20 s de pausa).
-6. **Mobilidade** (`mobility.ts`): até 4 exercícios. Primeiro as articulações das lesões, depois as mais usadas no dia, preferindo movimentos dinâmicos.
+6. **Mobilidade** (`mobility.ts`): de 4 a 5 exercícios, 2 séries cada. Primeiro as articulações das lesões, depois as mais usadas no dia, preferindo movimentos dinâmicos.
 7. **Progressão dupla** (`progression.ts`):
    - Todas as séries no topo da faixa → +5 kg em agachamento, dobradiça e glúteo compostos; +2,5 kg nos demais.
    - Abaixo do mínimo em 2 sessões seguidas → −10% (deload).
@@ -85,7 +85,7 @@ Onboarding, Hoje, Semana, Treino, Detalhe do exercício, Ao vivo, Resumo pós-tr
 | 0 | Setup | Repo, Vite + PWA, tokens visuais, navegação, banco local, deploy | Feito |
 | 1 | Curadoria dos dados | 293 exercícios traduzidos, ligados ao checklist de equipamentos, com tags de lesão (`data/curadoria.txt`, `npm run build:exercises`) | Feito |
 | 2 | Motor | Regras 1–9 com testes (`src/engine`) | Feito |
-| 3 | Telas base | Onboarding, ambientes, perfil, hoje, semana, treino, detalhe | |
+| 3 | Telas base | Onboarding, ambientes, perfil, hoje, semana, treino (com troca), detalhe | Feito |
 | 4 | Execução | Ao vivo, registro, resumo, progressão, gráficos | |
 | 5 | Publicação | Cache offline das imagens, ícones PNG (iOS), backup, polimento | |
 
