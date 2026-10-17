@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
+import { InstallCard } from '../components/InstallCard'
 import { ChoiceCards, ChoiceChips, Loading, ScreenHeader, Section, Stepper, TextField } from '../components/ui'
 import { exportBackup, importBackup, type Backup } from '../db/db'
 import { CARDIO_OPTIONS, FOCUS_OPTIONS, GOAL_LABELS, INJURY_LABELS, LEVEL_LABELS, SPLIT_HINTS, suggestedSplit } from '../data/labels'
 import { SPLIT_LABELS } from '../engine'
 import { saveProfile } from '../state/actions'
-import { useProfile } from '../state/hooks'
+import { useProfile, useProgram } from '../state/hooks'
+import { prefetchProgramImages, shareOrDownload } from '../state/platform'
 import type { Goal, Injury, Level, Profile, Sex, Split } from '../types'
 
 const entries = <K extends string>(labels: Record<K, string>) => (Object.keys(labels) as K[]).map((value) => ({ value, label: labels[value] }))
@@ -14,6 +16,8 @@ export function Perfil() {
   const stored = useProfile()
   const [draft, setDraft] = useState<Profile | null>(null)
   const [status, setStatus] = useState('')
+  const [deviceStatus, setDeviceStatus] = useState('')
+  const program = useProgram()
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -35,21 +39,25 @@ export function Perfil() {
 
   const download = async () => {
     const data = await exportBackup()
-    const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `treino-backup-${data.exportedAt.slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(a.href)
+    const file = new File([JSON.stringify(data, null, 1)], `treino-backup-${data.exportedAt.slice(0, 10)}.json`, { type: 'application/json' })
+    const result = await shareOrDownload(file)
+    if (result !== 'cancelado') setDeviceStatus(result === 'compartilhado' ? 'Backup enviado.' : 'Backup salvo em Downloads.')
+  }
+
+  const downloadPhotos = async () => {
+    if (!program) return
+    setDeviceStatus('Baixando fotos…')
+    const ok = await prefetchProgramImages(program, (done, total) => setDeviceStatus(`Baixando fotos… ${done} de ${total}`))
+    setDeviceStatus(ok ? `${ok} fotos guardadas para usar sem internet.` : 'Não deu para baixar agora. Confira a conexão.')
   }
 
   const upload = async (file: File) => {
     try {
       await importBackup(JSON.parse(await file.text()) as Backup)
       setDraft(null)
-      setStatus('Backup importado.')
+      setDeviceStatus('Backup importado.')
     } catch (e) {
-      setStatus(e instanceof SyntaxError ? 'Esse arquivo não é um JSON válido.' : (e as Error).message)
+      setDeviceStatus(e instanceof SyntaxError ? 'Esse arquivo não é um JSON válido.' : (e as Error).message)
     }
   }
 
@@ -115,7 +123,14 @@ export function Perfil() {
         </button>
       </div>
 
-      <Section title="Backup" hint="Seus dados ficam só neste aparelho. Exporte um arquivo para guardar ou levar para outro celular.">
+      <Section title="App no celular" hint="As telas já funcionam sem internet depois da primeira abertura. Baixe as fotos do seu treino para vê-las offline também.">
+        <InstallCard />
+        <button type="button" className="btn btn-ghost" onClick={downloadPhotos} disabled={!program}>
+          Baixar fotos do treino
+        </button>
+      </Section>
+
+      <Section title="Backup" hint="Seus dados ficam só neste aparelho. Exporte um arquivo para guardar no Drive, no iCloud ou mandar para outro celular.">
         <div className="flex gap-2">
           <button type="button" className="btn btn-ghost flex-1" onClick={download}>
             Exportar backup
@@ -135,6 +150,11 @@ export function Perfil() {
             }}
           />
         </div>
+        {deviceStatus && (
+          <p role="status" className="text-[13px] text-lime">
+            {deviceStatus}
+          </p>
+        )}
       </Section>
 
       <p className="text-xs leading-relaxed text-dim">

@@ -182,7 +182,7 @@ export function Stepper({
             if (!Number.isNaN(v)) onChange(v)
           }}
           onBlur={() => onChange(clamp(value))}
-          className="w-16 rounded-xl border border-line bg-card2 py-2 text-center font-mono text-[15px] text-fg"
+          className="w-16 rounded-xl border border-line bg-card2 py-2 text-center font-mono text-base text-fg"
         />
         <button
           type="button"
@@ -224,7 +224,7 @@ export function TextField({
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}
-        className="rounded-2xl border border-line bg-card px-4 py-3 text-[15px] text-fg placeholder:text-dim"
+        className="rounded-2xl border border-line bg-card px-4 py-3 text-base text-fg placeholder:text-dim"
       />
     </div>
   )

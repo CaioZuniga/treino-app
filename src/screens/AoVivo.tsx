@@ -6,6 +6,7 @@ import { Dot, Loading } from '../components/ui'
 import { exerciseName } from '../data/catalog'
 import type { LoadSuggestion } from '../engine'
 import { discardLive, finishLive, startLive, suggestionsFor, updateLive } from '../state/actions'
+import { haptic, unlockAudio } from '../state/platform'
 import { useLive } from '../state/hooks'
 import type { LiveSet, LiveWorkout } from '../types'
 
@@ -152,6 +153,7 @@ function LiveSession({ live }: { live: LiveWorkout }) {
         ))}
       </div>
 
+      <div key={stepIndex} className="screen-enter flex flex-col gap-5">
       {step.kind === 'mobilidade' && (
         <section className="flex flex-col gap-3">
           <div>
@@ -200,6 +202,7 @@ function LiveSession({ live }: { live: LiveWorkout }) {
       )}
 
       {step.kind === 'aerobico' && session.cardio && <CardioStep live={live} />}
+      </div>
 
       <div className="mt-auto flex flex-col gap-2">
         {confirm === 'finish' && (
@@ -301,6 +304,8 @@ function StrengthStep({
   const update = (i: number, patch: Partial<LiveSet>) => onChange(sets.map((s, k) => (k === i ? { ...s, ...patch } : s)))
   const toggleDone = (i: number) => {
     const done = !sets[i].done
+    unlockAudio()
+    if (done) haptic()
     // Ao concluir uma série, a carga passa para a próxima (se ela ainda estiver vazia) e o descanso começa.
     const next = sets.map((s, k) => {
       if (k === i) return { ...s, done, reps: s.reps || (done ? String(plan.repsMax) : s.reps) }
@@ -365,7 +370,7 @@ function SetRow({
   onChange: (p: Partial<LiveSet>) => void
   onToggle: () => void
 }) {
-  const field = 'w-full rounded-[10px] border border-line bg-card2 p-2.5 text-center font-mono text-[15px] text-fg placeholder:text-dim'
+  const field = 'w-full rounded-[10px] border border-line bg-card2 p-2.5 text-center font-mono text-base text-fg placeholder:text-dim'
   return (
     <>
       <span className="text-center font-mono text-muted">{index + 1}</span>
@@ -415,7 +420,14 @@ function CardioStep({ live }: { live: LiveWorkout }) {
       {timer ? (
         <RingTimer countdown={timer} label="aeróbico" onAdjust={(d) => setTimer({ ...timer, endsAt: timer.endsAt + d * 1000 })} onSkip={() => setTimer(null)} onEnd={() => updateLive({ cardioDone: true })} />
       ) : (
-        <button type="button" className="btn btn-ghost" onClick={() => setTimer({ endsAt: Date.now() + cardio.minutes * 60000, total: cardio.minutes * 60 })}>
+        <button
+          type="button"
+          className="btn btn-ghost"
+          onClick={() => {
+            unlockAudio()
+            setTimer({ endsAt: Date.now() + cardio.minutes * 60000, total: cardio.minutes * 60 })
+          }}
+        >
           Iniciar cronômetro de {cardio.minutes} min
         </button>
       )}

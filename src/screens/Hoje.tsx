@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { InstallCard } from '../components/InstallCard'
 import { Dot, Loading } from '../components/ui'
 import { dayKey, WeekStrip } from '../components/WeekStrip'
 import { SPLIT_LABELS } from '../engine'
@@ -85,6 +86,8 @@ export function Hoje() {
         <Stat value={String(logs.length)} label="treinos no total" />
         <Stat value={String(program.sessions.length)} label={`dias na divisão`} />
       </div>
+
+      <InstallCard dismissible />
 
       {environments.length > 1 && (
         <div className="card flex flex-col gap-2.5">

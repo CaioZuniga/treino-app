@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { beep, haptic } from '../state/platform'
 
 const RADIUS = 96
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
@@ -22,22 +23,10 @@ export function useTick(active: boolean, ms = 250): number {
   return now
 }
 
-/** Aviso de fim de descanso: vibração e um bipe curto (o navegador só toca som depois de um toque na tela). */
+/** Aviso de fim de descanso: vibração (Android) e bipe (liberado no toque que iniciou o descanso). */
 export function alertEnd() {
-  try {
-    navigator.vibrate?.([200, 100, 200])
-    const ctx = new AudioContext()
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.frequency.value = 880
-    gain.gain.setValueAtTime(0.2, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5)
-    osc.connect(gain).connect(ctx.destination)
-    osc.start()
-    osc.stop(ctx.currentTime + 0.5)
-  } catch {
-    // Sem áudio ou vibração disponíveis: o anel parado já mostra que acabou.
-  }
+  haptic([200, 100, 200])
+  beep()
 }
 
 export interface Countdown {

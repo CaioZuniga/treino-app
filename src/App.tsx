@@ -59,7 +59,9 @@ function TabsLayout() {
           paddingTop: 'calc(24px + env(safe-area-inset-top, 0px))',
         }}
       >
-        <Outlet />
+        <div key={pathname} className="screen-enter">
+          <Outlet />
+        </div>
       </main>
       <TabBar />
     </div>

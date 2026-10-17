@@ -32,8 +32,14 @@ body,
   height: 100%;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
   background: var(--color-bg);
   color: var(--color-fg);
   font-family: var(--font-body);
@@ -54,7 +60,7 @@ body {
     @apply border-lime/35 bg-lime/12 text-lime;
   }
   .btn {
-    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl px-[18px] py-3.5 font-bold;
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl px-[18px] py-3.5 font-bold transition-transform duration-100 active:scale-[0.97] disabled:opacity-60;
   }
   .btn-lime {
     @apply bg-lime text-lime-ink shadow-[0_0_24px_rgba(200,255,61,0.35)];
@@ -62,6 +68,27 @@ body {
   .btn-ghost {
     @apply border border-line bg-card2 text-fg;
   }
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.screen-enter {
+  animation: enter 0.22s ease-out;
+}
+
+/* Cartões e linhas tocáveis afundam de leve ao toque. */
+a.card:active,
+button.card:active {
+  transform: scale(0.985);
 }
 
 @keyframes pop {
@@ -76,6 +103,17 @@ body {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* Toque: sem atraso de toque duplo nem seleção de texto ao segurar botões. */
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+}
+button {
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 :focus-visible {

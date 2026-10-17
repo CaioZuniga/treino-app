@@ -8,7 +8,7 @@ Protótipo visual aprovado: https://claude.ai/artifact/BxhhCJnJRV5mq3JUhaNnkL (d
 
 | Área | Decisão |
 |---|---|
-| Plataforma | Web app / PWA instalável, publicado no GitHub Pages |
+| Plataforma | Web app / PWA instalável no iPhone e no Android, publicado no GitHub Pages |
 | Dados | IndexedDB (Dexie) no aparelho + exportar/importar backup em JSON |
 | Motor | Só regras (sem IA), testado com Vitest |
 | Exercícios | free-exercise-db (domínio público), curadoria de ~250 exercícios traduzidos |
@@ -87,7 +87,7 @@ Onboarding, Hoje, Semana, Treino, Detalhe do exercício, Ao vivo, Resumo pós-tr
 | 2 | Motor | Regras 1–9 com testes (`src/engine`) | Feito |
 | 3 | Telas base | Onboarding, ambientes, perfil, hoje, semana, treino (com troca), detalhe | Feito |
 | 4 | Execução | Ao vivo (séries, carga sugerida, timer de descanso, aeróbico, progresso salvo), resumo com recordes, aba Progresso com gráfico e histórico | Feito |
-| 5 | Publicação | Cache offline das imagens, ícones PNG (iOS), backup, polimento | |
+| 5 | Publicação | iPhone e Android: ícones PNG e maskable, metatags do iOS, fontes locais, offline (app e fotos), instalar app, backup pela folha de compartilhar, ajustes de toque, zoom e áudio, transições | Feito |
 
 ## Aviso
 
